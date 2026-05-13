@@ -584,6 +584,74 @@ const knowledgeBase = [
     previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">统计标签</button><pre id="out">等待中</pre><script>document.getElementById('run').onclick=()=>{const tags=['JS','DOM','JS','BOM'];const unique=[...new Set(tags)];const map=new Map();unique.forEach((tag)=>{map.set(tag,tags.filter((item)=>item===tag).length);});document.getElementById('out').textContent=JSON.stringify({unique,counts:Object.fromEntries(map)},null,2);};</script></body>`,
     practiceHint: "把课程标签、待办状态或关键词列表改造成 Set / Map 版本，对比和普通数组对象的区别。",
   },
+  {
+    id: 29,
+    level: "intermediate",
+    category: "浏览器存储",
+    title: "sessionStorage：保存当前标签页的临时状态",
+    summary: "当你只想让数据在当前标签页里临时保留时，sessionStorage 比 localStorage 更合适。",
+    goals: ["知道 sessionStorage 的生命周期", "会读写当前标签页的轻量状态", "能区分它与 localStorage 的使用场景"],
+    steps: [
+      "先把 sessionStorage 理解成“当前标签页的小抽屉”，刷新还在，关掉标签页通常就结束。",
+      "再学 setItem / getItem / removeItem 这几个最常用方法。",
+      "最后把它放进筛选面板、临时草稿、步骤导航等需要短期记忆的场景里。",
+    ],
+    pitfalls: ["sessionStorage 仍然只存字符串，复杂数据要先序列化。", "它通常不会跨新标签页共享，不要把长期状态全塞进去。"],
+    code: `sessionStorage.setItem("activeTab", "notes");\nconst activeTab = sessionStorage.getItem("activeTab") || "intro";\nconsole.log(activeTab);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="save">暂存筛选状态</button><button id="clear">清空</button><pre id="out">当前：未保存</pre><script>let mockSession={};const out=document.getElementById('out');const render=()=>{out.textContent='当前：'+(mockSession.activeTab||'未保存');};document.getElementById('save').onclick=()=>{mockSession.activeTab='favorites';render();};document.getElementById('clear').onclick=()=>{mockSession={};render();};render();</script></body>`,
+    practiceHint: "给筛选面板、分步表单或编辑区加一个“刷新后继续当前标签页进度”的临时保存能力。",
+  },
+  {
+    id: 30,
+    level: "intermediate",
+    category: "浏览器存储",
+    title: "Cookie：理解小体积浏览器状态",
+    summary: "Cookie 是浏览器保存的小段文本，前端常用它理解“轻量状态会随请求一起携带”的基础概念。",
+    goals: ["知道 Cookie 的基本字符串格式", "会用 document.cookie 做基础读写", "理解它和 Storage 的使用边界"],
+    steps: [
+      "先记住 Cookie 本质是一串 key=value 文本，还可以拼接 path、max-age 等属性。",
+      "再学会把 document.cookie 读出来并拆分成对象或数组。",
+      "最后比较 Cookie、sessionStorage、localStorage：生命周期、容量、是否自动跟请求走。",
+    ],
+    pitfalls: ["document.cookie 每次赋值通常是追加/覆盖单个键，不是整个对象。", "HttpOnly 这类安全属性只能理解概念，前端脚本不能读取。"],
+    code: `document.cookie = "theme=dark; max-age=3600; path=/";\nconst cookieText = document.cookie;\nconsole.log(cookieText);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="set">设置主题 Cookie</button><button id="read">读取</button><pre id="out">cookieJar: （空）</pre><script>let cookieJar='';const out=document.getElementById('out');const render=()=>{out.textContent='cookieJar: '+(cookieJar||'（空）');};document.getElementById('set').onclick=()=>{cookieJar='theme=dark; nickname=Alice';render();};document.getElementById('read').onclick=()=>{const pairs=(cookieJar||'').split('; ').filter(Boolean).map((item)=>item.split('='));out.textContent=JSON.stringify(Object.fromEntries(pairs),null,2);};render();</script></body>`,
+    practiceHint: "做一个“欢迎语偏好”示例：把昵称或主题保存成 Cookie 字符串，再在页面初始化时读取。",
+  },
+  {
+    id: 31,
+    level: "intermediate",
+    category: "浏览器 API",
+    title: "URL 与 URLSearchParams：让页面状态写进链接",
+    summary: "当筛选条件、分页和搜索词需要可刷新恢复、可复制分享时，URL 与 URLSearchParams 会很有用。",
+    goals: ["会用 URL 解析完整地址", "会用 URLSearchParams 读写查询参数", "知道何时把状态放进链接更合适"],
+    steps: [
+      "先拆解一个链接：协议、路径、查询参数分别在 URL 对象的哪里。",
+      "再用 URLSearchParams 读取、设置和删除查询参数。",
+      "最后把筛选器、分页器、分享链接生成器都改造成“地址栏驱动”的写法。",
+    ],
+    pitfalls: ["参数值默认都是字符串，比较或计算前要先转换。", "更新查询参数后要考虑是否同步刷新页面内容。"],
+    code: `const url = new URL("https://example.com/courses?level=basic&sort=score-desc");\nconst params = url.searchParams;\nparams.set("keyword", "dom");\nconsole.log(url.toString());`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">生成筛选链接</button><pre id="out">等待中</pre><script>document.getElementById('run').onclick=()=>{const url=new URL('https://example.com/courses');url.searchParams.set('level','intermediate');url.searchParams.set('keyword','async');url.searchParams.set('sort','score-desc');document.getElementById('out').textContent=url.toString();};</script></body>`,
+    practiceHint: "把课程筛选页、题库过滤器或搜索页改成“刷新后还能保留筛选条件”的版本。",
+  },
+  {
+    id: 32,
+    level: "intermediate",
+    category: "数组方法",
+    title: "数组排序策略：sort、toSorted 与比较函数",
+    summary: "排序看似简单，但默认字符串排序、原地修改和比较函数返回值，都是新手最常踩坑的地方。",
+    goals: ["知道 sort 默认按字符串比较", "会写数字和对象列表的比较函数", "了解 toSorted 这种不改原数组的排序写法"],
+    steps: [
+      "先用一组数字观察默认 sort 的结果，理解它为什么看起来“不像数字排序”。",
+      "再写比较函数，掌握升序、降序以及多条件排序的基本模式。",
+      "最后区分 sort 会改原数组、toSorted 会返回新数组，减少副作用。",
+    ],
+    pitfalls: ["直接 sort 数字数组时，可能按字符串顺序排。", "比较函数不要只记公式，要先想清楚“你想让谁在前面”。"],
+    code: `const scores = [100, 9, 80];\nconst asc = [...scores].sort((a, b) => a - b);\nconst desc = scores.toSorted((a, b) => b - a);\nconsole.log(asc, desc, scores);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">比较排序结果</button><pre id="out">等待中</pre><script>document.getElementById('run').onclick=()=>{const scores=[100,9,80,60];const defaultSorted=[...scores].sort();const numberSorted=[...scores].sort((a,b)=>a-b);const safeSorted=scores.toSorted? scores.toSorted((a,b)=>b-a):[...scores].sort((a,b)=>b-a);document.getElementById('out').textContent=JSON.stringify({scores,defaultSorted,numberSorted,safeSorted},null,2);};</script></body>`,
+    practiceHint: "把课程、商品或成绩列表做成可切换“价格升序 / 评分降序 / 最新优先”的排序器。",
+  },
 ];
 
 const choiceQuestions = [
@@ -1462,6 +1530,7 @@ function renderProjectPaths() {
                 <h4>建议完成</h4>
                 ${renderListMarkup(project.deliverables)}
               </div>
+              ${project.milestones?.length ? `<div class="card-section"><h4>步骤拆解</h4>${renderListMarkup(project.milestones, "ol")}</div>` : ""}
               <div class="card-section practice-tip">
                 <h4>先补这些知识点</h4>
                 ${renderKnowledgeReferenceLinks(project.relatedIds)}
