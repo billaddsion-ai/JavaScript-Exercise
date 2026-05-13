@@ -1139,7 +1139,7 @@ function renderKnowledgeDetail() {
         <div class="row">
           <button class="btn primary run-knowledge-detail" type="button" data-id="${item.id}">运行示例</button>
         </div>
-        <iframe class="preview" id="knowledge-preview-${item.id}" sandbox="allow-scripts allow-forms"></iframe>
+        <iframe class="preview" id="knowledge-preview-${item.id}" sandbox="allow-scripts"></iframe>
       </div>
     </section>
 
