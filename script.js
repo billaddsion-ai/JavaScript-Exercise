@@ -396,8 +396,13 @@ const knowledgeBase = [
       "最后尝试在函数里声明局部变量，只让当前逻辑能访问它。",
     ],
     pitfalls: ["在 if / for 代码块里声明的 let 变量，出了代码块就不能再访问。", "模板字符串要用反引号 `，不是普通引号。"],
-    code: `const student = "小林";\nconst score = 92;\nif (score >= 60) {\n  const result = \`${"${student}"} 通过了考试\`;\n  console.log(result);\n}`,
-    previewDoc: `<body style="font-family:Arial;padding:16px"><input id="name" value="小林" /><input id="score" value="92" type="number" /><button id="run">生成结果</button><p id="out">等待中</p><script>document.getElementById('run').onclick=()=>{const student=document.getElementById('name').value||'学员';const score=Number(document.getElementById('score').value);const result=score>=60?\`${"${student}"} 通过了考试\`:\`${"${student}"} 还需要继续练习\`;document.getElementById('out').textContent=result;};</script></body>`,
+    code: String.raw`const student = "小林";
+const score = 92;
+if (score >= 60) {
+  const result = \`${student} 通过了考试\`;
+  console.log(result);
+}`,
+    previewDoc: String.raw`<body style="font-family:Arial;padding:16px"><input id="name" value="小林" /><input id="score" value="92" type="number" /><button id="run">生成结果</button><p id="out">等待中</p><script>document.getElementById('run').onclick=()=>{const student=document.getElementById('name').value||'学员';const score=Number(document.getElementById('score').value);const result=score>=60?\`${student} 通过了考试\`:\`${student} 还需要继续练习\`;document.getElementById('out').textContent=result;};</script></body>`,
     practiceHint: "把“通过/未通过”再扩展成“优秀 / 及格 / 待加强”三个分支。",
   },
   {

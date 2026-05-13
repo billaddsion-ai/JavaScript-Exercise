@@ -15,6 +15,9 @@
   --hard: #fff4e8;
   --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
   --shadow-strong: 0 18px 40px rgba(37, 99, 235, 0.12);
+  --header-glow-size: clamp(180px, 24vw, 260px);
+  --header-glow-right: clamp(-90px, -6vw, -40px);
+  --header-glow-bottom: clamp(-140px, -10vw, -80px);
 }
 
 * {
@@ -42,9 +45,10 @@ body {
 .site-header::after {
   content: "";
   position: absolute;
-  inset: auto -80px -120px auto;
-  width: 260px;
-  height: 260px;
+  right: var(--header-glow-right);
+  bottom: var(--header-glow-bottom);
+  width: var(--header-glow-size);
+  height: var(--header-glow-size);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   filter: blur(4px);
