@@ -80,6 +80,10 @@ const knowledgeGroups = window.knowledgeGroups || {};
 const knowledgeArticleMeta = window.knowledgeArticleMeta || {};
 const knowledgeExpansionEstimate = window.knowledgeExpansionEstimate || "";
 const knowledgeBacklog = window.knowledgeBacklog || [];
+const knowledgeSupportPages = window.knowledgeSupportPages || [];
+const knowledgeApiSections = window.knowledgeApiSections || [];
+const knowledgeGlossaryTerms = window.knowledgeGlossaryTerms || [];
+const knowledgeProjectGuides = window.knowledgeProjectGuides || [];
 
 const knowledgeBase = [
   {
@@ -512,6 +516,74 @@ const knowledgeBase = [
     previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">批量渲染</button><ul id="list"></ul><script>document.getElementById('run').onclick=()=>{const list=document.getElementById('list');list.innerHTML='';const fragment=document.createDocumentFragment();for(let i=0;i<5;i+=1){const item=document.createElement('li');item.textContent='项目 '+(i+1);fragment.appendChild(item);}list.appendChild(fragment);};</script></body>`,
     practiceHint: "观察你的实战题里哪些地方会重复查 DOM 或在循环里频繁改页面，再尝试优化。",
   },
+  {
+    id: 25,
+    level: "intermediate",
+    category: "文本处理",
+    title: "正则表达式：校验、提取与替换",
+    summary: "正则表达式适合解决“某段文本是否符合规则”“要把哪一段提出来”“要统一替换哪些字符”这三类问题。",
+    goals: ["看懂最常见的字符类、量词和边界符", "会用 test 判断是否匹配", "会用 match 和 replace 做提取与替换"],
+    steps: [
+      "先从最小规则开始，例如只判断是否包含数字。",
+      "再组合字符类和量词，比如 4 到 12 位的用户名规则。",
+      "最后把正则放到表单校验、关键词提取或文本清洗里使用。",
+    ],
+    pitfalls: ["规则一复杂就容易难读，先拆小再合并。", "全局匹配和单次匹配的结果不同，记得分清是否需要 g 修饰符。"],
+    code: `const userNameRule = /^\\w{4,12}$/;\nconsole.log(userNameRule.test("amy_2026"));\nconsole.log("订单号 A-102".match(/\\d+/)?.[0]);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><input id="name" value="amy_2026" /><button id="run">校验用户名</button><p id="out">等待校验</p><script>const rule=/^\\w{4,12}$/;document.getElementById('run').onclick=()=>{const value=document.getElementById('name').value.trim();document.getElementById('out').textContent=rule.test(value)?'格式通过，可以继续下一步':'格式不通过，请输入 4~12 位字母、数字或下划线';};</script></body>`,
+    practiceHint: "再写一个手机号、邮箱或课程编号规则，对比不同正则的可读性。",
+  },
+  {
+    id: 26,
+    level: "intermediate",
+    category: "浏览器 API",
+    title: "BOM、window 与定时器",
+    summary: "除了 DOM，JavaScript 还经常需要和浏览器窗口本身打交道，例如地址、历史记录、延时任务和周期任务。",
+    goals: ["知道 window、location、history 的常见职责", "会用 setTimeout / setInterval 安排任务", "知道定时器使用后要清理"],
+    steps: [
+      "先把 BOM 理解为“浏览器窗口环境对象”，和操作页面节点的 DOM 区分开。",
+      "再学会用定时器延迟执行或按固定间隔更新页面。",
+      "最后在页面切换、任务结束后及时清理定时器，避免重复执行。",
+    ],
+    pitfalls: ["setInterval 如果不清理，页面逻辑可能越跑越多。", "location.href 改变后通常会触发页面跳转。"],
+    code: `let count = 3;\nconst timer = setInterval(() => {\n  console.log("倒计时：", count);\n  count -= 1;\n  if (count < 0) clearInterval(timer);\n}, 1000);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">开始倒计时</button><p id="out">3 秒后结束</p><script>let timer=null;document.getElementById('run').onclick=()=>{let count=3;const out=document.getElementById('out');clearInterval(timer);out.textContent='倒计时：'+count;timer=setInterval(()=>{count-=1;if(count<0){clearInterval(timer);out.textContent='计时结束';return;}out.textContent='倒计时：'+count;},1000);};</script></body>`,
+    practiceHint: "把倒计时结束后的行为改成显示提示、刷新内容或允许重新开始。",
+  },
+  {
+    id: 27,
+    level: "basic",
+    category: "内置对象",
+    title: "Date 与 Math：时间、随机数和取整",
+    summary: "Date 负责时间，Math 负责数字处理；它们几乎是做练习、做页面交互时最常见的两类内置工具。",
+    goals: ["知道如何拿到当前时间", "会用 Math.random 生成随机数", "会用 floor / ceil / round 做取整"],
+    steps: [
+      "先用 new Date() 拿到当前时间，并观察常见的时间戳写法。",
+      "再用 Math.random、Math.floor 等方法做随机数和整数处理。",
+      "最后把它们放进真实场景，例如学习打卡、抽签、倒计时、价格展示。",
+    ],
+    pitfalls: ["Math.random 不会直接给整数，需要再配合取整。", "日期对象默认直接输出可读性一般，展示前通常要自己整理。"],
+    code: `const today = new Date();\nconst luckyNumber = Math.floor(Math.random() * 10) + 1;\nconsole.log(today.getFullYear(), luckyNumber);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">生成今日信息</button><p id="out">等待中</p><script>document.getElementById('run').onclick=()=>{const today=new Date();const lucky=Math.floor(Math.random()*10)+1;document.getElementById('out').textContent='今天是 '+today.getFullYear()+' 年，今日幸运数字：'+lucky;};</script></body>`,
+    practiceHint: "做一个“今日打卡第几天 + 幸运数字”的小组件，顺便尝试自己格式化日期。",
+  },
+  {
+    id: 28,
+    level: "intermediate",
+    category: "数据结构",
+    title: "Map 与 Set：去重和映射",
+    summary: "当数组和普通对象不再够用时，Set 和 Map 可以更清晰地处理去重、成员判断和键值映射。",
+    goals: ["知道 Set 适合做唯一值集合", "知道 Map 可用任意类型做键", "会把数组与 Set / Map 互相转换"],
+    steps: [
+      "先用 Set 给数组去重，理解“同值只保留一份”。",
+      "再用 Map 存放键值对，感受它和普通对象的区别。",
+      "最后把它们放进标签筛选、统计次数、缓存结果等场景中练习。",
+    ],
+    pitfalls: ["Set 和 Map 不能直接像普通对象那样用点语法取值。", "引用类型作为键时，要注意比较的是同一个引用。"],
+    code: `const tags = ["JS", "DOM", "JS"];\nconst uniqueTags = [...new Set(tags)];\nconst countMap = new Map();\nuniqueTags.forEach((tag) => countMap.set(tag, tags.filter((item) => item === tag).length));\nconsole.log(uniqueTags, countMap.get("JS"));`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">统计标签</button><pre id="out">等待中</pre><script>document.getElementById('run').onclick=()=>{const tags=['JS','DOM','JS','BOM'];const unique=[...new Set(tags)];const map=new Map();unique.forEach((tag)=>{map.set(tag,tags.filter((item)=>item===tag).length);});document.getElementById('out').textContent=JSON.stringify({unique,counts:Object.fromEntries(map)},null,2);};</script></body>`,
+    practiceHint: "把课程标签、待办状态或关键词列表改造成 Set / Map 版本，对比和普通数组对象的区别。",
+  },
 ];
 
 const choiceQuestions = [
@@ -783,6 +855,20 @@ function getKnowledgeCollection() {
     .filter(Boolean);
 }
 
+function renderKnowledgeReferenceLinks(ids) {
+  const relatedItems = (ids || [])
+    .map((id) => getKnowledgeCollection().find((entry) => entry.id === id))
+    .filter(Boolean);
+  if (!relatedItems.length) return "";
+  return `
+    <div class="mini-links">
+      ${relatedItems
+        .map((item) => `<a class="mini-link" href="${getKnowledgePagePath(item)}">${item.title}</a>`)
+        .join("")}
+    </div>
+  `;
+}
+
 function getKnowledgeLevelFilter() {
   const level = getParam("level", "all");
   return level === "all" || !levelMeta[level] ? "all" : level;
@@ -873,6 +959,8 @@ function renderHome() {
       </div>
       <div class="row">
         <a class="btn primary" href="${buildLocalPath("knowledge.html")}">进入知识库总览</a>
+        <a class="btn" href="${buildLocalPath("api-reference.html")}">查看 API 速查</a>
+        <a class="btn" href="${buildLocalPath("project-paths.html")}">查看项目页</a>
       </div>
     </section>
 
@@ -899,7 +987,10 @@ function renderHome() {
                 <span class="tag">${levelMeta[project.level].label}</span>
                 <h4>${project.title}</h4>
                 <p>${project.summary}</p>
-                <a class="btn primary" href="./questions.html?difficulty=${project.level}&type=practice">查看该级别实战题</a>
+                <div class="row">
+                  <a class="btn primary" href="./questions.html?difficulty=${project.level}&type=practice">查看该级别实战题</a>
+                  <a class="btn" href="${buildLocalPath("project-paths.html")}">看跨知识点项目</a>
+                </div>
               </article>
             `
           )
@@ -914,6 +1005,7 @@ function renderKnowledge() {
   if (!container) return;
   const activeLevel = getKnowledgeLevelFilter();
   const items = getKnowledgeCollection().filter((item) => activeLevel === "all" || item.level === activeLevel);
+  const knowledgeCount = getKnowledgeCollection().length;
   const groupEntries = Object.entries(knowledgeGroups)
     .map(([key, group]) => ({
       key,
@@ -1014,7 +1106,7 @@ function renderKnowledge() {
         </article>
         <article class="study-card">
           <h3>当前筛选说明</h3>
-          <p>${activeLevel === "all" ? "当前展示全部 24 个独立知识页，适合建立全局地图。" : `当前只展示 ${levelMeta[activeLevel].label} 难度内容，方便集中补齐同阶段知识。`}</p>
+          <p>${activeLevel === "all" ? `当前展示全部 ${knowledgeCount} 个独立知识页，适合建立全局地图。` : `当前只展示 ${levelMeta[activeLevel].label} 难度内容，方便集中补齐同阶段知识。`}</p>
         </article>
         <article class="study-card">
           <h3>下一次可继续</h3>
@@ -1023,10 +1115,38 @@ function renderKnowledge() {
       </div>
     </section>
     ${groupMarkup}
+    ${
+      knowledgeSupportPages.length
+        ? `
+          <section class="content-block">
+            <div class="section-head">
+              <h3>扩展工具页</h3>
+              <p>把速查、术语和项目路线也补进知识库，方便像教程站一样一边学习、一边回查、一边做综合练习。</p>
+            </div>
+            <div class="cards support-page-grid">
+              ${knowledgeSupportPages
+                .map(
+                  (page) => `
+                    <article class="card support-card">
+                      <div class="tags">
+                        <span class="tag">${page.badge}</span>
+                      </div>
+                      <h4>${page.title}</h4>
+                      <p>${page.description}</p>
+                      <a class="btn primary" href="${buildLocalPath(page.fileName)}">打开页面</a>
+                    </article>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+        `
+        : ""
+    }
     <section class="content-block backlog-note">
       <div class="section-head">
         <h3>未完成 / 留给下一次任务</h3>
-        <p>这次先把 24 个独立知识页和总览页搭起来，下面这些方向适合继续扩充。</p>
+        <p>这次先把 ${knowledgeCount} 个独立知识页和扩展工具页补到当前版本，下面这些方向适合继续扩充。</p>
       </div>
       ${renderListMarkup(knowledgeBacklog)}
     </section>
@@ -1176,6 +1296,185 @@ function renderKnowledgeDetail() {
       iframe.srcdoc = currentItem.previewDoc;
     });
   });
+}
+
+function renderApiReference() {
+  const container = document.getElementById("api-reference-page");
+  if (!container) return;
+
+  container.innerHTML = `
+    <section class="content-block highlight-block intermediate">
+      <div class="section-head">
+        <h2>JavaScript API 速查页</h2>
+        <p>按“场景 → API → 常见写法 → 使用提醒”整理，适合读知识页、做题或写页面时快速回查。</p>
+      </div>
+      <div class="stats-grid compact-stats">
+        <article class="stat-card">
+          <strong>${knowledgeApiSections.length}</strong>
+          <span>场景分类</span>
+        </article>
+        <article class="stat-card">
+          <strong>${knowledgeApiSections.reduce((total, section) => total + section.entries.length, 0)}</strong>
+          <span>常用 API 组合</span>
+        </article>
+        <article class="stat-card">
+          <strong>${getKnowledgeCollection().length}</strong>
+          <span>可联动知识页</span>
+        </article>
+      </div>
+      <div class="row">
+        <a class="btn primary" href="${buildLocalPath("knowledge.html")}">返回知识库总览</a>
+        <a class="btn" href="${buildLocalPath("glossary.html")}">查看术语索引</a>
+        <a class="btn" href="${buildLocalPath("project-paths.html")}">查看项目页</a>
+      </div>
+    </section>
+    ${knowledgeApiSections
+      .map(
+        (section) => `
+          <section class="content-block">
+            <div class="section-head">
+              <h3>${section.title}</h3>
+              <p>${section.summary}</p>
+            </div>
+            <div class="cards api-reference-grid">
+              ${section.entries
+                .map(
+                  (entry) => `
+                    <article class="card api-card">
+                      <div class="tags">
+                        <span class="tag">${entry.kind}</span>
+                      </div>
+                      <h4>${entry.name}</h4>
+                      <p>${entry.description}</p>
+                      <div class="card-section">
+                        <h5>常见写法</h5>
+                        <pre><code>${escapeHtml(entry.syntax)}</code></pre>
+                      </div>
+                      <div class="card-section practice-tip">
+                        <h5>使用提醒</h5>
+                        ${renderListMarkup(entry.tips)}
+                      </div>
+                    </article>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+        `
+      )
+      .join("")}
+  `;
+}
+
+function renderGlossary() {
+  const container = document.getElementById("glossary-page");
+  if (!container) return;
+
+  container.innerHTML = `
+    <section class="content-block highlight-block basic">
+      <div class="section-head">
+        <h2>JavaScript 术语索引</h2>
+        <p>把知识页、题目里最常遇到的概念集中解释，适合先查词，再回到正文继续学习。</p>
+      </div>
+      <div class="stats-grid compact-stats">
+        <article class="stat-card">
+          <strong>${knowledgeGlossaryTerms.length}</strong>
+          <span>高频术语</span>
+        </article>
+        <article class="stat-card">
+          <strong>${knowledgeSupportPages.length}</strong>
+          <span>扩展工具页</span>
+        </article>
+        <article class="stat-card">
+          <strong>${knowledgeBacklog.length}</strong>
+          <span>后续待扩充方向</span>
+        </article>
+      </div>
+      <div class="row">
+        <a class="btn primary" href="${buildLocalPath("knowledge.html")}">返回知识库总览</a>
+        <a class="btn" href="${buildLocalPath("api-reference.html")}">查看 API 速查</a>
+      </div>
+    </section>
+    <section class="cards glossary-grid">
+      ${knowledgeGlossaryTerms
+        .map(
+          (item) => `
+            <article class="card glossary-card">
+              <h3>${item.term}</h3>
+              <p>${item.definition}</p>
+              <div class="card-section">
+                <h4>记忆提示</h4>
+                <p>${item.remember}</p>
+              </div>
+              <div class="card-section practice-tip">
+                <h4>相关知识页</h4>
+                ${renderKnowledgeReferenceLinks(item.relatedIds)}
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </section>
+  `;
+}
+
+function renderProjectPaths() {
+  const container = document.getElementById("project-paths-page");
+  if (!container) return;
+
+  container.innerHTML = `
+    <section class="content-block highlight-block hard">
+      <div class="section-head">
+        <h2>跨知识点项目页</h2>
+        <p>把单个知识点串成完整页面目标，适合在“看完知识页 + 做完题”之后继续做综合练习。</p>
+      </div>
+      <div class="stats-grid compact-stats">
+        <article class="stat-card">
+          <strong>${knowledgeProjectGuides.length}</strong>
+          <span>项目路线</span>
+        </article>
+        <article class="stat-card">
+          <strong>${challengeProjects.length}</strong>
+          <span>首页挑战项目</span>
+        </article>
+        <article class="stat-card">
+          <strong>${allPracticeQuestions.length}</strong>
+          <span>可衔接实战题</span>
+        </article>
+      </div>
+      <div class="row">
+        <a class="btn primary" href="${buildLocalPath("knowledge.html")}">返回知识库总览</a>
+        <a class="btn" href="${buildLocalPath("questions.html?difficulty=hard&type=practice")}">去做实战题</a>
+      </div>
+    </section>
+    <section class="cards project-guide-grid">
+      ${knowledgeProjectGuides
+        .map(
+          (project) => `
+            <article class="card challenge-card ${levelMeta[project.level].colorClass}">
+              <div class="tags">
+                <span class="tag">${levelMeta[project.level].label}</span>
+                <span class="tag muted-tag">跨知识点项目</span>
+              </div>
+              <h3>${project.title}</h3>
+              <p>${project.summary}</p>
+              <div class="card-section">
+                <h4>建议完成</h4>
+                ${renderListMarkup(project.deliverables)}
+              </div>
+              <div class="card-section practice-tip">
+                <h4>先补这些知识点</h4>
+                ${renderKnowledgeReferenceLinks(project.relatedIds)}
+              </div>
+              <div class="row">
+                <a class="btn primary" href="${buildLocalPath(project.questionPath)}">进入配套练习</a>
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </section>
+  `;
 }
 
 function getQuestionsByType(type) {
@@ -1439,6 +1738,9 @@ function init() {
   if (page === "knowledge") renderKnowledge();
   if (page === "knowledge-detail") renderKnowledgeDetail();
   if (page === "questions") renderQuestions();
+  if (page === "api-reference") renderApiReference();
+  if (page === "glossary") renderGlossary();
+  if (page === "project-paths") renderProjectPaths();
 }
 
 init();

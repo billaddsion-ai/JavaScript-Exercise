@@ -1,9 +1,9 @@
-window.knowledgeExpansionEstimate = "本轮先交付 24 个独立知识页 + 1 个知识总览页，先把语法、DOM、异步、工程化、底层机制整理成可连续浏览的专题库。";
+window.knowledgeExpansionEstimate = "本轮继续补齐 4 个独立知识页，并新增 API 速查页、术语索引、跨知识点项目页；目前累计 28 个独立知识页 + 1 个知识总览页，适合继续按专题扩展。";
 
 window.knowledgeBacklog = [
-  "补充正则表达式、BOM、Date / Math、Map / Set 等独立页面。",
-  "继续扩展与 runoob 风格接近的 API 速查页、示意图和术语索引。",
-  "补充更多跨知识点项目，把知识页和题库之间的跳转再细化。",
+  "继续补充 sessionStorage、Cookie、URL / URLSearchParams、数组排序策略等独立知识页。",
+  "继续扩展与 runoob 风格接近的示意图、API 对照表和更细的浏览器对象速查。",
+  "继续把跨知识点项目拆成更细的步骤页，并补更多项目到题库与知识页之间。",
 ];
 
 window.knowledgeGroups = {
@@ -304,4 +304,290 @@ window.knowledgeArticleMeta = {
     funIdeas: ["比较“循环里逐条插入 DOM”和“先拼 fragment 再一次插入”的差异。"],
     relatedIds: [6, 13, 22],
   },
+  25: {
+    fileName: "knowledge-25-regexp.html",
+    group: "engineering",
+    point: "正则表达式入门",
+    advancedNotes: [
+      "正则最适合先从“匹配什么文本”来理解，再逐步记住元字符和修饰符。",
+      "表单校验、关键词提取、批量替换都是最容易感受到正则价值的场景。",
+    ],
+    funIdeas: ["写一个用户名校验器，只允许 4~12 位字母、数字和下划线。"],
+    relatedIds: [16, 18, 26],
+  },
+  26: {
+    fileName: "knowledge-26-bom-timers.html",
+    group: "dom",
+    point: "BOM、窗口对象与定时器",
+    advancedNotes: [
+      "BOM 更关注浏览器环境本身，比如窗口尺寸、地址栏、历史记录和定时任务。",
+      "定时器不是越多越好，页面切换或组件销毁时要记得清理。",
+    ],
+    funIdeas: ["做一个倒计时提示条，开始后每秒刷新一次，到点自动停止。"],
+    relatedIds: [7, 17, 21],
+  },
+  27: {
+    fileName: "knowledge-27-date-math.html",
+    group: "foundation",
+    point: "Date 与 Math 常用工具",
+    advancedNotes: [
+      "Date 适合解决“现在是什么时间、相差多久”，Math 适合做随机数、取整和边界处理。",
+      "做倒计时、抽奖、分页、价格计算时，这两个内置对象会非常常见。",
+    ],
+    funIdeas: ["做一个“今日学习第几天”提示，并顺手生成一个随机鼓励文案。"],
+    relatedIds: [1, 3, 26],
+  },
+  28: {
+    fileName: "knowledge-28-map-set.html",
+    group: "data",
+    point: "Map 与 Set",
+    advancedNotes: [
+      "Set 擅长去重与成员判断，Map 擅长用任意类型做键保存映射关系。",
+      "当对象键不再只是字符串，或者你需要稳定记录插入顺序时，可以优先想到 Map。",
+    ],
+    funIdeas: ["用 Set 给标签数组去重，再用 Map 统计每个标签出现次数。"],
+    relatedIds: [5, 9, 20],
+  },
 };
+
+window.knowledgeSupportPages = [
+  {
+    title: "JavaScript API 速查页",
+    description: "把数组方法、DOM、异步、正则、BOM、Date / Math、Map / Set 按场景归档，适合遇到 API 时快速回查。",
+    fileName: "api-reference.html",
+    badge: "速查",
+  },
+  {
+    title: "JavaScript 术语索引",
+    description: "集中解释作用域、闭包、事件冒泡、微任务等高频名词，读知识页和做题时能更快对齐概念。",
+    fileName: "glossary.html",
+    badge: "术语",
+  },
+  {
+    title: "跨知识点项目页",
+    description: "把输入、存储、异步、性能等主题串成完整项目路线，方便从单点知识过渡到页面功能。",
+    fileName: "project-paths.html",
+    badge: "项目",
+  },
+];
+
+window.knowledgeApiSections = [
+  {
+    title: "基础语法与内置工具",
+    summary: "先覆盖最常回头查的字符串、数字、时间和随机数工具。",
+    entries: [
+      {
+        name: "Number / parseInt / parseFloat",
+        kind: "类型转换",
+        syntax: "Number(value)\nparseInt(value, 10)\nparseFloat(value)",
+        description: "把输入框、URL 参数、存储里的字符串转成数字时最常用。",
+        tips: ["Number 更适合整体转数值。", "parseInt 记得传 10，避免旧环境歧义。"],
+      },
+      {
+        name: "Math.floor / Math.ceil / Math.round / Math.random",
+        kind: "Math",
+        syntax: "Math.floor(3.9)\nMath.ceil(3.1)\nMath.round(3.5)\nMath.random()",
+        description: "做分页、随机题目、抽样显示、价格处理时都很常见。",
+        tips: ["随机整数常写成 Math.floor(Math.random() * max)。", "涉及金额时先想清楚取整规则。"],
+      },
+      {
+        name: "Date.now / new Date / getTime",
+        kind: "Date",
+        syntax: "const now = new Date();\nDate.now();\nnow.getTime();",
+        description: "适合时间戳比较、倒计时、学习打卡时间记录。",
+        tips: ["时间比较通常用时间戳更直接。", "展示给用户前最好自己格式化。"],
+      },
+    ],
+  },
+  {
+    title: "DOM 与 BOM 常用 API",
+    summary: "把网页元素操作和浏览器窗口对象放在一起查，方便做交互页面。",
+    entries: [
+      {
+        name: "querySelector / querySelectorAll",
+        kind: "DOM 查询",
+        syntax: "document.querySelector('#app')\ndocument.querySelectorAll('.item')",
+        description: "选中单个元素或一组元素，是几乎所有页面脚本的起点。",
+        tips: ["没找到元素会得到 null。", "querySelectorAll 返回静态列表。"],
+      },
+      {
+        name: "addEventListener",
+        kind: "事件监听",
+        syntax: "button.addEventListener('click', handler)",
+        description: "统一绑定点击、输入、提交、滚动等用户事件。",
+        tips: ["同一元素可绑定多个事件。", "需要移除时要保留同一个 handler 引用。"],
+      },
+      {
+        name: "window.location / history / setTimeout / setInterval",
+        kind: "BOM / 定时器",
+        syntax: "window.location.href\nhistory.back()\nsetTimeout(fn, 500)\nsetInterval(fn, 1000)",
+        description: "处理跳转、浏览历史、延时和轮询时会频繁遇到。",
+        tips: ["setInterval 常要搭配 clearInterval。", "页面跳转前先确认是否会丢失状态。"],
+      },
+    ],
+  },
+  {
+    title: "数组、对象与集合处理",
+    summary: "列表页、筛选器和配置表最常回查的操作集中在这里。",
+    entries: [
+      {
+        name: "map / filter / reduce",
+        kind: "数组方法",
+        syntax: "list.map(fn)\nlist.filter(fn)\nlist.reduce(fn, initialValue)",
+        description: "分别负责变形、筛选和累计，是处理中后台列表的高频组合。",
+        tips: ["map / filter 会返回新数组。", "reduce 前先确认累计值是什么。"],
+      },
+      {
+        name: "Object.keys / Object.values / Object.entries",
+        kind: "对象遍历",
+        syntax: "Object.keys(obj)\nObject.values(obj)\nObject.entries(obj)",
+        description: "把对象转成可循环的数据结构，适合做配置渲染和统计。",
+        tips: ["entries 常和 for...of 搭配。", "遍历前先确认属性是否真的需要全部暴露。"],
+      },
+      {
+        name: "Set / Map",
+        kind: "集合",
+        syntax: "const set = new Set(arr)\nconst map = new Map([[key, value]])",
+        description: "Set 适合去重，Map 适合保存更灵活的键值映射。",
+        tips: ["Set 去重后可用 [...set] 转回数组。", "Map 保留插入顺序，读取用 map.get(key)。"],
+      },
+    ],
+  },
+  {
+    title: "异步、存储与文本处理",
+    summary: "请求、缓存和校验类场景常会把这些 API 连在一起使用。",
+    entries: [
+      {
+        name: "Promise / async / await",
+        kind: "异步控制",
+        syntax: "await fetch(url)\nPromise.all(list)",
+        description: "把请求、并发加载、延迟操作串成更清晰的异步流程。",
+        tips: ["await 记得配合 try/catch。", "并发请求前先确认是否需要全部成功。"],
+      },
+      {
+        name: "localStorage / JSON.stringify / JSON.parse",
+        kind: "本地存储",
+        syntax: "localStorage.setItem('key', JSON.stringify(data))\nJSON.parse(localStorage.getItem('key'))",
+        description: "把轻量状态缓存到浏览器，适合草稿、偏好设置、学习进度。",
+        tips: ["取值可能是 null，要先判断。", "JSON.parse 建议放进 try/catch。"],
+      },
+      {
+        name: "RegExp / test / match / replace",
+        kind: "正则",
+        syntax: "/^\\w{4,12}$/.test(name)\ntext.match(/\\d+/g)\ntext.replace(/-/g, '/')",
+        description: "输入校验、关键词提取、格式清洗时很常见。",
+        tips: ["先写最小匹配规则，再逐步加复杂条件。", "全局匹配常配合 g 修饰符。"],
+      },
+    ],
+  },
+];
+
+window.knowledgeGlossaryTerms = [
+  {
+    term: "作用域",
+    definition: "变量在什么范围内可以被访问。",
+    remember: "看变量是写在全局、函数里，还是块级语句里。",
+    relatedIds: [1, 4, 15],
+  },
+  {
+    term: "闭包",
+    definition: "函数在外部作用域结束后，仍然记住并访问其中变量的现象。",
+    remember: "关键不是背定义，而是看“谁还在引用那个变量”。",
+    relatedIds: [4, 19, 23],
+  },
+  {
+    term: "事件冒泡",
+    definition: "事件从目标元素逐层向父元素传播的默认过程。",
+    remember: "事件委托就是借助冒泡把监听放到更高一层。",
+    relatedIds: [7, 13, 24],
+  },
+  {
+    term: "微任务",
+    definition: "在当前同步任务结束后、下一个宏任务前执行的一类任务，Promise.then 很常见。",
+    remember: "常拿来和 setTimeout 这样的宏任务做顺序比较。",
+    relatedIds: [10, 11, 21],
+  },
+  {
+    term: "原型链",
+    definition: "对象查找属性时沿着原型持续向上查找的关系链。",
+    remember: "实例没有的属性，才会继续去原型上找。",
+    relatedIds: [20, 23, 28],
+  },
+  {
+    term: "浅拷贝",
+    definition: "只复制第一层，嵌套对象仍然共享引用的复制方式。",
+    remember: "展开运算符和 slice 都属于常见浅拷贝。",
+    relatedIds: [5, 8, 28],
+  },
+  {
+    term: "防抖",
+    definition: "高频触发时只在停止一段时间后执行一次。",
+    remember: "更适合搜索输入、联想提示这类场景。",
+    relatedIds: [7, 22, 24],
+  },
+  {
+    term: "节流",
+    definition: "高频触发时按固定时间间隔执行。",
+    remember: "滚动监听、拖拽、窗口缩放更常见。",
+    relatedIds: [22, 24, 26],
+  },
+  {
+    term: "BOM",
+    definition: "Browser Object Model，描述浏览器窗口环境本身的一组对象。",
+    remember: "window、location、history、navigator 都属于这类范围。",
+    relatedIds: [17, 21, 26],
+  },
+  {
+    term: "Set 去重",
+    definition: "把数组传给 Set 后，会自动移除重复值。",
+    remember: "常见写法是 [...new Set(arr)]。",
+    relatedIds: [9, 28, 24],
+  },
+  {
+    term: "正则修饰符",
+    definition: "用来影响正则匹配方式的附加标记，如 g、i、m。",
+    remember: "g 常用于全局查找，i 常用于忽略大小写。",
+    relatedIds: [16, 18, 25],
+  },
+  {
+    term: "加载状态",
+    definition: "页面请求远程数据时，对“等待中、成功、失败”三种状态的管理。",
+    remember: "真正的异步页面不只处理成功结果。",
+    relatedIds: [10, 11, 17],
+  },
+];
+
+window.knowledgeProjectGuides = [
+  {
+    level: "basic",
+    title: "学习打卡卡片",
+    summary: "把表单输入、Date、DOM 更新、基础校验串成一个最小可用的小页面。",
+    deliverables: ["输入学习主题和天数后生成卡片", "显示今天日期和累计学习天数", "空输入时给出校验提示"],
+    relatedIds: [6, 16, 27],
+    questionPath: "questions.html?difficulty=basic&type=practice",
+  },
+  {
+    level: "intermediate",
+    title: "标签去重与筛选面板",
+    summary: "把数组方法、Set、事件监听和 localStorage 串起来，适合做课程/文章标签管理。",
+    deliverables: ["输入标签后自动去重", "支持筛选、删除和本地保存", "刷新后恢复上次状态"],
+    relatedIds: [9, 12, 28],
+    questionPath: "questions.html?difficulty=intermediate&type=practice",
+  },
+  {
+    level: "intermediate",
+    title: "账号安全小助手",
+    summary: "把正则表达式、表单校验和错误提示合起来，做一个实时密码/用户名检查页面。",
+    deliverables: ["用户名和密码实时校验", "区分通过、警告、失败三种提示", "提交前统一阻止不合法输入"],
+    relatedIds: [16, 18, 25],
+    questionPath: "questions.html?difficulty=intermediate&type=fill",
+  },
+  {
+    level: "hard",
+    title: "异步倒计时公告栏",
+    summary: "结合 fetch、BOM 定时器、事件循环与性能优化，模拟一个会自动轮播更新的公告面板。",
+    deliverables: ["请求远程数据并显示加载状态", "使用定时器定期刷新公告", "切换标签页或销毁时及时清理定时器"],
+    relatedIds: [17, 21, 24, 26],
+    questionPath: "questions.html?difficulty=hard&type=practice",
+  },
+];

@@ -307,6 +307,13 @@ h4 {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
+.api-reference-grid,
+.glossary-grid,
+.project-guide-grid,
+.support-page-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
 .mini-link {
   padding: 6px 12px;
   border-radius: 999px;
