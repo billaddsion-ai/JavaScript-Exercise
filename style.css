@@ -442,6 +442,64 @@ textarea.editor {
   margin-bottom: 10px;
 }
 
+.library-overview-grid,
+.related-knowledge-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.knowledge-overview-card h4,
+.article-panel h3,
+.related-knowledge-card h4 {
+  margin-bottom: 10px;
+}
+
+.knowledge-overview-card h5,
+.article-panel h4 {
+  margin: 0 0 8px;
+}
+
+.backlog-note ul,
+.knowledge-overview-card ul,
+.knowledge-overview-card ol,
+.article-panel ul,
+.article-panel ol {
+  padding-left: 20px;
+}
+
+.breadcrumb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.breadcrumb-separator {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.article-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.article-panel {
+  min-height: 100%;
+}
+
+.knowledge-detail-code {
+  padding: 18px;
+}
+
+.library-group-block .section-head h3 {
+  margin-bottom: 8px;
+}
+
+.backlog-note {
+  border-style: dashed;
+}
+
 details {
   margin-top: 10px;
 }

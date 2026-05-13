@@ -76,6 +76,11 @@ const challengeProjects = [
   },
 ];
 
+const knowledgeGroups = window.knowledgeGroups || {};
+const knowledgeArticleMeta = window.knowledgeArticleMeta || {};
+const knowledgeExpansionEstimate = window.knowledgeExpansionEstimate || "";
+const knowledgeBacklog = window.knowledgeBacklog || [];
+
 const knowledgeBase = [
   {
     id: 1,
@@ -698,15 +703,27 @@ function normalizeAnswer(value) {
   return value.trim().toLowerCase();
 }
 
+function renderListMarkup(entries, tagName = "ul") {
+  return `<${tagName}>${entries.map((entry) => `<li>${entry}</li>`).join("")}</${tagName}>`;
+}
+
 function getParam(name, fallback) {
   const value = new URLSearchParams(window.location.search).get(name);
   return value || fallback;
 }
 
+function getPathPrefix() {
+  return document.body.dataset.pathPrefix || "./";
+}
+
+function buildLocalPath(path) {
+  return `${getPathPrefix()}${path}`;
+}
+
 function getLevelLinks(currentLevel) {
   return Object.entries(levelMeta)
     .map(
-      ([key, meta]) => `<a class="pill ${key === currentLevel ? "active" : ""}" href="./knowledge.html?level=${key}">${meta.label}</a>`
+      ([key, meta]) => `<a class="pill ${key === currentLevel ? "active" : ""}" href="${buildLocalPath(`knowledge.html?level=${key}`)}">${meta.label}</a>`
     )
     .join("");
 }
@@ -720,7 +737,7 @@ function getQuestionLinks(currentDifficulty, currentType) {
           <div class="mini-links">
             ${Object.entries(questionTypeMeta)
               .map(
-                ([type, typeMeta]) => `<a class="mini-link ${difficulty === currentDifficulty && type === currentType ? "active" : ""}" href="./questions.html?difficulty=${difficulty}&type=${type}">${typeMeta.label}</a>`
+                ([type, typeMeta]) => `<a class="mini-link ${difficulty === currentDifficulty && type === currentType ? "active" : ""}" href="${buildLocalPath(`questions.html?difficulty=${difficulty}&type=${type}`)}">${typeMeta.label}</a>`
               )
               .join("")}
           </div>
@@ -738,23 +755,57 @@ function getQuestionCountByLevel(level) {
   );
 }
 
+function getKnowledgeMeta(item) {
+  return knowledgeArticleMeta[item.id] || null;
+}
+
+function getKnowledgePagePath(item) {
+  const meta = getKnowledgeMeta(item);
+  if (!meta) return buildLocalPath("knowledge.html");
+  return buildLocalPath(`knowledge-pages/${meta.fileName}`);
+}
+
+function getKnowledgeCollection() {
+  return knowledgeBase
+    .map((item) => {
+      const meta = getKnowledgeMeta(item);
+      if (!meta) return null;
+      const group = knowledgeGroups[meta.group];
+      if (!group) return null;
+      return {
+        ...item,
+        ...meta,
+        groupTitle: group.title,
+        groupDescription: group.description,
+        groupSequence: group.sequence,
+      };
+    })
+    .filter(Boolean);
+}
+
+function getKnowledgeLevelFilter() {
+  const level = getParam("level", "all");
+  return level === "all" || !levelMeta[level] ? "all" : level;
+}
+
 function renderHome() {
   const home = document.getElementById("home-content");
   const totalQuestions = allChoiceQuestions.length + allFillQuestions.length + allPracticeQuestions.length;
   const challengeCount = allPracticeQuestions.filter((item) => item.source.includes("挑战")).length;
+  const knowledgePages = getKnowledgeCollection();
   home.innerHTML = `
     <section class="stats-grid">
       <article class="stat-card">
-        <strong>${knowledgeBase.length}</strong>
-        <span>知识主题</span>
+        <strong>${knowledgePages.length}</strong>
+        <span>独立知识页</span>
       </article>
       <article class="stat-card">
         <strong>${totalQuestions}</strong>
         <span>题库总题量</span>
       </article>
       <article class="stat-card">
-        <strong>3 个难度</strong>
-        <span>基础 / 进阶 / 困难</span>
+        <strong>${Object.keys(knowledgeGroups).length} 个大类</strong>
+        <span>按专题总览后再进入知识点</span>
       </article>
       <article class="stat-card">
         <strong>3 类题型</strong>
@@ -791,7 +842,7 @@ function renderHome() {
     <section class="content-block">
       <div class="section-head">
         <h3>按学习阶段进入</h3>
-        <p>每个难度都给出清晰目标、推荐题型与题量，方便零基础用户判断下一步。</p>
+        <p>每个难度都给出清晰目标、推荐题型与题量；知识库入口现在会先进入专题总览页。</p>
       </div>
       <div class="route-grid">
         ${Object.entries(levelMeta)
@@ -805,13 +856,23 @@ function renderHome() {
                 </ul>
                 <p class="route-meta">当前级别共有 ${knowledgeBase.filter((item) => item.level === key).length} 个知识主题、${getQuestionCountByLevel(key)} 道练习。</p>
                 <div class="row">
-                  <a class="btn primary" href="./knowledge.html?level=${key}">先读${meta.label}知识库</a>
-                  <a class="btn" href="./questions.html?difficulty=${key}&type=${meta.recommendedType}">做推荐练习</a>
+                  <a class="btn primary" href="${buildLocalPath(`knowledge.html?level=${key}`)}">先读${meta.label}知识库</a>
+                  <a class="btn" href="${buildLocalPath(`questions.html?difficulty=${key}&type=${meta.recommendedType}`)}">做推荐练习</a>
                 </div>
               </article>
             `
           )
           .join("")}
+      </div>
+    </section>
+
+    <section class="content-block">
+      <div class="section-head">
+        <h3>知识库扩充范围</h3>
+        <p>${knowledgeExpansionEstimate}</p>
+      </div>
+      <div class="row">
+        <a class="btn primary" href="${buildLocalPath("knowledge.html")}">进入知识库总览</a>
       </div>
     </section>
 
@@ -851,164 +912,268 @@ function renderHome() {
 function renderKnowledge() {
   const container = document.getElementById("knowledge-page");
   if (!container) return;
-  const level = getParam("level", "basic");
-  const activeLevel = levelMeta[level] ? level : "basic";
-  const items = knowledgeBase.filter((item) => item.level === activeLevel);
-  const nextQuestionType = levelMeta[activeLevel].recommendedType;
-  const companionQuestionCount = getQuestionCountByLevel(activeLevel);
+  const activeLevel = getKnowledgeLevelFilter();
+  const items = getKnowledgeCollection().filter((item) => activeLevel === "all" || item.level === activeLevel);
+  const groupEntries = Object.entries(knowledgeGroups)
+    .map(([key, group]) => ({
+      key,
+      group,
+      items: items.filter((item) => item.group === key),
+    }))
+    .filter((entry) => entry.items.length);
 
-  const createList = (tagName, entries) => {
-    const list = document.createElement(tagName);
-    entries.forEach((entry) => {
-      const li = document.createElement("li");
-      li.textContent = entry;
-      list.appendChild(li);
-    });
-    return list;
-  };
+  const filterLinks = [
+    { key: "all", label: "全部" },
+    ...Object.entries(levelMeta).map(([key, meta]) => ({ key, label: meta.label })),
+  ]
+    .map(
+      ({ key, label }) =>
+        `<a class="pill ${key === activeLevel ? "active" : ""}" href="${buildLocalPath(key === "all" ? "knowledge.html" : `knowledge.html?level=${key}`)}">${label}</a>`
+    )
+    .join("");
 
-  const createSection = (title, listTag, entries, extraClass = "") => {
-    const section = document.createElement("div");
-    section.className = `card-section ${extraClass}`.trim();
-    const heading = document.createElement("h4");
-    heading.textContent = title;
-    section.appendChild(heading);
-    section.appendChild(createList(listTag, entries));
-    return section;
-  };
+  const groupMarkup = groupEntries
+    .map(
+      ({ key, group, items: groupItems }) => `
+        <section class="content-block library-group-block">
+          <div class="section-head">
+            <div class="tags">
+              <span class="tag">${group.title}</span>
+              <span class="tag muted-tag">${group.sequence}</span>
+            </div>
+            <h3>${group.title}</h3>
+            <p>${group.description}</p>
+          </div>
+          <div class="cards library-overview-grid">
+            ${groupItems
+              .map(
+                (item) => `
+                  <article class="card knowledge-overview-card">
+                    <div class="tags">
+                      <span class="tag">${levelMeta[item.level].label}</span>
+                      <span class="tag">${item.category}</span>
+                      <span class="tag muted-tag">${item.point}</span>
+                    </div>
+                    <h4>${item.title}</h4>
+                    <p>${item.summary}</p>
+                    <div class="card-section">
+                      <h5>基础内容</h5>
+                      ${renderListMarkup(item.goals.slice(0, 3))}
+                    </div>
+                    <div class="card-section practice-tip">
+                      <h5>进阶 / 趣味内容</h5>
+                      ${renderListMarkup([...(item.pitfalls || []).slice(0, 1), ...(item.advancedNotes || []).slice(0, 1), ...(item.funIdeas || [])].slice(0, 3))}
+                    </div>
+                    <div class="row">
+                      <a class="btn primary" href="${getKnowledgePagePath(item)}">进入独立页面</a>
+                      <a class="btn" href="${buildLocalPath(`questions.html?difficulty=${item.level}&type=${levelMeta[item.level].recommendedType}`)}">配套练习</a>
+                    </div>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        </section>
+      `
+    )
+    .join("");
 
-  const highlight = document.createElement("section");
-  highlight.className = `content-block highlight-block ${levelMeta[activeLevel].colorClass}`;
+  container.innerHTML = `
+    <section class="content-block highlight-block ${activeLevel === "all" ? "basic" : levelMeta[activeLevel].colorClass}">
+      <div class="section-head">
+        <h2>JavaScript 分类知识库</h2>
+        <p>${knowledgeExpansionEstimate}</p>
+      </div>
+      <div class="pill-row">${filterLinks}</div>
+      <div class="stats-grid compact-stats">
+        <article class="stat-card">
+          <strong>${Object.keys(knowledgeGroups).length}</strong>
+          <span>知识大类别</span>
+        </article>
+        <article class="stat-card">
+          <strong>${getKnowledgeCollection().length}</strong>
+          <span>独立知识页</span>
+        </article>
+        <article class="stat-card">
+          <strong>${items.length}</strong>
+          <span>${activeLevel === "all" ? "当前可浏览专题" : `${levelMeta[activeLevel].label}专题数`}</span>
+        </article>
+        <article class="stat-card">
+          <strong>${allChoiceQuestions.length + allFillQuestions.length + allPracticeQuestions.length}</strong>
+          <span>可衔接题库总题量</span>
+        </article>
+      </div>
+      <div class="study-grid">
+        <article class="study-card">
+          <h3>浏览方式</h3>
+          <ol>
+            <li>先看“大类别”，明确当前阶段最该补哪一块。</li>
+            <li>再进入独立知识页，按“基础内容 → 进阶/趣味内容 → 示例”往下看。</li>
+            <li>最后跳到同难度题库，把刚读过的知识点马上练一遍。</li>
+          </ol>
+        </article>
+        <article class="study-card">
+          <h3>当前筛选说明</h3>
+          <p>${activeLevel === "all" ? "当前展示全部 24 个独立知识页，适合建立全局地图。" : `当前只展示 ${levelMeta[activeLevel].label} 难度内容，方便集中补齐同阶段知识。`}</p>
+        </article>
+        <article class="study-card">
+          <h3>下一次可继续</h3>
+          ${renderListMarkup(knowledgeBacklog)}
+        </article>
+      </div>
+    </section>
+    ${groupMarkup}
+    <section class="content-block backlog-note">
+      <div class="section-head">
+        <h3>未完成 / 留给下一次任务</h3>
+        <p>这次先把 24 个独立知识页和总览页搭起来，下面这些方向适合继续扩充。</p>
+      </div>
+      ${renderListMarkup(knowledgeBacklog)}
+    </section>
+  `;
+}
 
-  const sectionHead = document.createElement("div");
-  sectionHead.className = "section-head";
-  const title = document.createElement("h2");
-  title.textContent = `${levelMeta[activeLevel].label}知识库`;
-  const description = document.createElement("p");
-  description.textContent = `${levelMeta[activeLevel].description} 本页共 ${items.length} 个主题，建议按顺序学习后立即去做配套练习。`;
-  sectionHead.append(title, description);
+function renderKnowledgeDetail() {
+  const container = document.getElementById("knowledge-article-page");
+  if (!container) return;
 
-  const pillRow = document.createElement("div");
-  pillRow.className = "pill-row";
-  Object.entries(levelMeta).forEach(([key, meta]) => {
-    const link = document.createElement("a");
-    link.className = `pill ${key === activeLevel ? "active" : ""}`.trim();
-    link.href = `./knowledge.html?level=${key}`;
-    link.textContent = meta.label;
-    pillRow.appendChild(link);
-  });
+  const articleId = Number(document.body.dataset.knowledgeId);
+  const item = knowledgeBase.find((entry) => entry.id === articleId);
+  const meta = item ? getKnowledgeMeta(item) : null;
+  const group = meta ? knowledgeGroups[meta.group] : null;
 
-  const studyGrid = document.createElement("div");
-  studyGrid.className = "study-grid";
+  if (!item || !meta || !group) {
+    container.innerHTML = `
+      <section class="content-block">
+        <div class="section-head">
+          <h2>未找到对应知识页</h2>
+          <p>请返回知识库总览重新选择专题。</p>
+        </div>
+        <a class="btn primary" href="${buildLocalPath("knowledge.html")}">回到知识库总览</a>
+      </section>
+    `;
+    return;
+  }
 
-  const readingCard = document.createElement("article");
-  readingCard.className = "study-card";
-  const readingTitle = document.createElement("h3");
-  readingTitle.textContent = "阅读方式";
-  readingCard.append(readingTitle, createList("ol", levelMeta[activeLevel].studyPlan));
+  const relatedItems = (meta.relatedIds || [])
+    .map((id) => getKnowledgeCollection().find((entry) => entry.id === id))
+    .filter(Boolean);
+  const recommendedType = levelMeta[item.level].recommendedType;
+  const questionCount = getQuestionCountByLevel(item.level);
 
-  const practiceCard = document.createElement("article");
-  practiceCard.className = "study-card";
-  const practiceTitle = document.createElement("h3");
-  practiceTitle.textContent = "配套练习建议";
-  const practiceText = document.createElement("p");
-  practiceText.textContent = `读完这一页后，建议去做 ${levelMeta[activeLevel].label} 难度的${questionTypeMeta[nextQuestionType].label}。当前级别共有 ${companionQuestionCount} 道题，可按“选择 / 填空 / 实战”逐步升级。`;
-  const practiceLink = document.createElement("a");
-  practiceLink.className = "btn primary";
-  practiceLink.href = `./questions.html?difficulty=${activeLevel}&type=${nextQuestionType}`;
-  practiceLink.textContent = "去做对应练习";
-  practiceCard.append(practiceTitle, practiceText, practiceLink);
+  container.innerHTML = `
+    <section class="content-block highlight-block ${levelMeta[item.level].colorClass}">
+      <div class="breadcrumb-row">
+        <a class="mini-link" href="${buildLocalPath("knowledge.html")}">知识库总览</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="mini-link">${group.title}</span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="mini-link active">${meta.point}</span>
+      </div>
+      <div class="section-head">
+        <h2>${item.title}</h2>
+        <p>${item.summary}</p>
+      </div>
+      <div class="stats-grid compact-stats">
+        <article class="stat-card">
+          <strong>${levelMeta[item.level].label}</strong>
+          <span>适合当前阶段</span>
+        </article>
+        <article class="stat-card">
+          <strong>${group.title}</strong>
+          <span>知识类型大类别</span>
+        </article>
+        <article class="stat-card">
+          <strong>${meta.point}</strong>
+          <span>当前知识点</span>
+        </article>
+        <article class="stat-card">
+          <strong>${questionCount}</strong>
+          <span>同级别可练题量</span>
+        </article>
+      </div>
+      <div class="row">
+        <a class="btn primary" href="${buildLocalPath(`questions.html?difficulty=${item.level}&type=${recommendedType}`)}">做配套练习</a>
+        <a class="btn" href="${buildLocalPath(`knowledge.html?level=${item.level}`)}">查看同级别专题</a>
+      </div>
+    </section>
 
-  const overviewCard = document.createElement("article");
-  overviewCard.className = "study-card";
-  const overviewTitle = document.createElement("h3");
-  overviewTitle.textContent = "本页覆盖主题";
-  const overviewList = document.createElement("ul");
-  overviewList.className = "topic-list";
-  items.forEach((item) => {
-    const li = document.createElement("li");
-    li.textContent = item.title;
-    overviewList.appendChild(li);
-  });
-  overviewCard.append(overviewTitle, overviewList);
+    <section class="content-block article-grid">
+      <article class="card article-panel">
+        <h3>基础内容</h3>
+        <p class="lead">先把“这是什么、能解决什么问题、最小写法是什么”吃透。</p>
+        <div class="card-section">
+          <h4>你将学会</h4>
+          ${renderListMarkup(item.goals)}
+        </div>
+        <div class="card-section">
+          <h4>一步步理解</h4>
+          ${renderListMarkup(item.steps, "ol")}
+        </div>
+      </article>
 
-  studyGrid.append(readingCard, practiceCard, overviewCard);
-  highlight.append(sectionHead, pillRow, studyGrid);
+      <article class="card article-panel">
+        <h3>进阶 / 趣味内容</h3>
+        <div class="card-section">
+          <h4>常见易错点</h4>
+          ${renderListMarkup(item.pitfalls)}
+        </div>
+        <div class="card-section">
+          <h4>再往前一步</h4>
+          ${renderListMarkup(meta.advancedNotes || [])}
+        </div>
+        <div class="card-section practice-tip">
+          <h4>趣味练习</h4>
+          ${renderListMarkup([item.practiceHint, ...(meta.funIdeas || [])])}
+        </div>
+      </article>
+    </section>
 
-  const cardsSection = document.createElement("section");
-  cardsSection.className = "cards knowledge-cards";
+    <section class="content-block">
+      <div class="section-head">
+        <h3>示例代码</h3>
+        <p>先阅读示例，再点击运行；修改其中的数字、文本或条件，会更容易形成自己的理解。</p>
+      </div>
+      <div class="card knowledge-detail-code">
+        <pre><code>${escapeHtml(item.code)}</code></pre>
+        <div class="row">
+          <button class="btn primary run-knowledge-detail" type="button" data-id="${item.id}">运行示例</button>
+        </div>
+        <iframe class="preview" id="knowledge-preview-${item.id}" sandbox="allow-scripts allow-forms"></iframe>
+      </div>
+    </section>
 
-  items.forEach((item, index) => {
-    const article = document.createElement("article");
-    article.className = "card knowledge-card";
+    <section class="content-block">
+      <div class="section-head">
+        <h3>同类延伸知识点</h3>
+        <p>建议把相邻主题连起来看，知识会更像一条完整链路。</p>
+      </div>
+      <div class="cards related-knowledge-grid">
+        ${relatedItems
+          .map(
+            (related) => `
+              <article class="card related-knowledge-card">
+                <div class="tags">
+                  <span class="tag">${related.groupTitle}</span>
+                  <span class="tag">${levelMeta[related.level].label}</span>
+                </div>
+                <h4>${related.title}</h4>
+                <p>${related.summary}</p>
+                <a class="btn primary" href="${getKnowledgePagePath(related)}">继续阅读</a>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+  `;
 
-    const tags = document.createElement("div");
-    tags.className = "tags";
-    [levelMeta[item.level].label, item.category].forEach((text) => {
-      const tag = document.createElement("span");
-      tag.className = "tag";
-      tag.textContent = text;
-      tags.appendChild(tag);
-    });
-
-    const heading = document.createElement("h3");
-    heading.textContent = `${index + 1}. ${item.title}`;
-
-    const lead = document.createElement("p");
-    lead.className = "lead";
-    lead.textContent = item.summary;
-
-    const codeSection = document.createElement("div");
-    codeSection.className = "card-section";
-    const codeTitle = document.createElement("h4");
-    codeTitle.textContent = "示例代码";
-    const pre = document.createElement("pre");
-    const code = document.createElement("code");
-    code.textContent = item.code;
-    pre.appendChild(code);
-    const buttonRow = document.createElement("div");
-    buttonRow.className = "row";
-    const runButton = document.createElement("button");
-    runButton.className = "btn primary run-knowledge";
-    runButton.type = "button";
-    runButton.dataset.id = String(item.id);
-    runButton.textContent = "运行示例";
-    buttonRow.appendChild(runButton);
-    const iframe = document.createElement("iframe");
-    iframe.className = "preview";
-    iframe.id = `knowledge-preview-${item.id}`;
-    iframe.setAttribute("sandbox", "allow-scripts");
-    codeSection.append(codeTitle, pre, buttonRow, iframe);
-
-    const practiceTip = document.createElement("div");
-    practiceTip.className = "card-section practice-tip";
-    const practiceTipTitle = document.createElement("h4");
-    practiceTipTitle.textContent = "动手建议";
-    const practiceTipText = document.createElement("p");
-    practiceTipText.textContent = item.practiceHint;
-    practiceTip.append(practiceTipTitle, practiceTipText);
-
-    article.append(
-      tags,
-      heading,
-      lead,
-      createSection("你将学会", "ul", item.goals),
-      createSection("一步步理解", "ol", item.steps),
-      createSection("常见易错点", "ul", item.pitfalls),
-      codeSection,
-      practiceTip
-    );
-    cardsSection.appendChild(article);
-  });
-
-  container.replaceChildren(highlight, cardsSection);
-
-  document.querySelectorAll(".run-knowledge").forEach((button) => {
+  document.querySelectorAll(".run-knowledge-detail").forEach((button) => {
     button.addEventListener("click", () => {
       const id = Number(button.dataset.id);
-      const item = knowledgeBase.find((entry) => entry.id === id);
+      const currentItem = knowledgeBase.find((entry) => entry.id === id);
       const iframe = document.getElementById(`knowledge-preview-${id}`);
-      iframe.srcdoc = item.previewDoc;
+      iframe.srcdoc = currentItem.previewDoc;
     });
   });
 }
@@ -1272,6 +1437,7 @@ function init() {
   const page = document.body.dataset.page;
   if (page === "home") renderHome();
   if (page === "knowledge") renderKnowledge();
+  if (page === "knowledge-detail") renderKnowledgeDetail();
   if (page === "questions") renderQuestions();
 }
 
