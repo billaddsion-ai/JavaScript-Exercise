@@ -40,6 +40,42 @@ const questionTypeMeta = {
   },
 };
 
+const studyPhases = [
+  {
+    title: "先建立全局地图",
+    description: "先看首页路线和每级别目标，知道“为什么学、先学什么、学到哪里算完成”。",
+    actions: ["先从基础知识库开始", "遇到新词先看示例再记定义", "每学完一个主题就立即练习"],
+  },
+  {
+    title: "再做同级别练习",
+    description: "知识页学完后立即进入对应难度题库，用选择题校准概念、用填空题强化记忆、用实战题连接页面交互。",
+    actions: ["基础先做选择题", "进阶优先补 API 与异步", "困难阶段多做实战和挑战项目"],
+  },
+  {
+    title: "最后进入挑战项目",
+    description: "当你能独立改动示例后，再去做更完整的小项目，把多个知识点串起来。",
+    actions: ["先完成最小可用版本", "再补空状态和错误处理", "最后优化交互和代码组织"],
+  },
+];
+
+const challengeProjects = [
+  {
+    level: "basic",
+    title: "个人资料卡生成器",
+    summary: "练习表单输入、条件判断、DOM 更新，让新手快速看到“输入 → 输出”的闭环。",
+  },
+  {
+    level: "intermediate",
+    title: "课程筛选与排序面板",
+    summary: "把数组方法、事件委托、本地存储串起来，完成更接近真实后台列表的交互。",
+  },
+  {
+    level: "hard",
+    title: "异步数据看板",
+    summary: "同时覆盖 fetch、Promise.all、错误重试、加载状态与性能优化，适合进阶挑战。",
+  },
+];
+
 const knowledgeBase = [
   {
     id: 1,
@@ -347,6 +383,108 @@ const knowledgeBase = [
     previewDoc: `<body style="font-family:Arial;padding:16px"><input id="keyword" placeholder="快速输入" /><p id="out">停止输入后显示结果</p><script>function debounce(fn,delay){let timer=null;return(...args)=>{clearTimeout(timer);timer=setTimeout(()=>fn(...args),delay);};}const render=debounce((value)=>{document.getElementById('out').textContent='最终值：'+value;},500);document.getElementById('keyword').addEventListener('input',(event)=>{render(event.target.value);});</script></body>`,
     practiceHint: "把上面的 debounce 改成 throttle，对比交互差别。",
   },
+  {
+    id: 19,
+    level: "basic",
+    category: "语法基础",
+    title: "作用域、模板字符串与更自然的拼接",
+    summary: "先理解“变量在哪儿能访问”，再学会用模板字符串把变量和文本更清晰地组合起来。",
+    goals: ["知道全局作用域、函数作用域、块级作用域的区别", "会使用模板字符串插入变量", "能避免变量名冲突和硬拼接文本"],
+    steps: [
+      "先记住：let / const 遵循块级作用域，var 更容易造成意外覆盖。",
+      "再把字符串拼接从 '+' 改成模板字符串，观察可读性变化。",
+      "最后尝试在函数里声明局部变量，只让当前逻辑能访问它。",
+    ],
+    pitfalls: ["在 if / for 代码块里声明的 let 变量，出了代码块就不能再访问。", "模板字符串要用反引号 `，不是普通引号。"],
+    code: `const student = "小林";\nconst score = 92;\nif (score >= 60) {\n  const result = \`${"${student}"} 通过了考试\`;\n  console.log(result);\n}`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><input id="name" value="小林" /><input id="score" value="92" type="number" /><button id="run">生成结果</button><p id="out">等待中</p><script>document.getElementById('run').onclick=()=>{const student=document.getElementById('name').value||'学员';const score=Number(document.getElementById('score').value);const result=score>=60?\`${"${student}"} 通过了考试\`:\`${"${student}"} 还需要继续练习\`;document.getElementById('out').textContent=result;};</script></body>`,
+    practiceHint: "把“通过/未通过”再扩展成“优秀 / 及格 / 待加强”三个分支。",
+  },
+  {
+    id: 20,
+    level: "basic",
+    category: "表单交互",
+    title: "表单输入、类型转换与基础校验",
+    summary: "页面里很多数据一开始都是字符串，学会先取值、再转换、再校验，才能写出可靠交互。",
+    goals: ["知道 input.value 得到的是字符串", "会用 Number 做数值转换", "会先校验空值再做计算"],
+    steps: [
+      "先拿到输入框内容，并观察浏览器返回的数据类型。",
+      "再把数字类输入用 Number 转换后参与计算。",
+      "最后先处理空输入、非数字等异常情况，再更新页面结果。",
+    ],
+    pitfalls: ["即使 input 的 type 是 number，取到的 value 仍然是字符串。", "空字符串转成数字会得到 0，要先判断是否真的输入了内容。"],
+    code: `const height = Number(document.querySelector("#height").value);\nconst weight = Number(document.querySelector("#weight").value);\nif (!height || !weight) {\n  console.log("请先填写完整信息");\n}`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><input id="height" placeholder="身高 cm" type="number" /><input id="weight" placeholder="体重 kg" type="number" /><button id="run">检查输入</button><p id="out">等待输入</p><script>document.getElementById('run').onclick=()=>{const height=document.getElementById('height').value.trim();const weight=document.getElementById('weight').value.trim();if(!height||!weight){document.getElementById('out').textContent='请先填写完整信息';return;}document.getElementById('out').textContent='输入有效，可继续计算';};</script></body>`,
+    practiceHint: "把它改成 BMI 计算器，顺便区分偏瘦、正常、偏胖。",
+  },
+  {
+    id: 21,
+    level: "intermediate",
+    category: "浏览器 API",
+    title: "fetch：请求远程数据并处理加载状态",
+    summary: "真实项目里经常要从接口拿数据，除了写请求本身，还要处理等待中、成功和失败三种状态。",
+    goals: ["知道 fetch 返回 Promise", "会检查 response.ok", "能为页面补上加载中和失败提示"],
+    steps: [
+      "先发起 fetch 请求，并在页面显示“加载中”。",
+      "再判断响应是否成功，把 JSON 数据解析出来。",
+      "最后为失败情况准备提示文案和重试入口。",
+    ],
+    pitfalls: ["fetch 遇到 404/500 不一定直接进入 catch，需要结合 response.ok 判断。", "异步更新页面时要注意旧数据和新状态是否一致。"],
+    code: `async function loadUser() {\n  const response = await fetch("https://jsonplaceholder.typicode.com/users/1");\n  if (!response.ok) throw new Error("请求失败");\n  const user = await response.json();\n  console.log(user.name);\n}`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">模拟加载</button><p id="out">等待中</p><script>document.getElementById('run').onclick=async()=>{const out=document.getElementById('out');out.textContent='加载中...';await new Promise((resolve)=>setTimeout(resolve,500));out.textContent='成功：已拿到示例数据';};</script></body>`,
+    practiceHint: "再加一个“重新加载”按钮，并把加载、成功、失败文案拆开处理。",
+  },
+  {
+    id: 22,
+    level: "intermediate",
+    category: "代码质量",
+    title: "错误处理与用户提示",
+    summary: "代码不只是“跑起来”，还要在失败时告诉用户发生了什么、下一步该怎么做。",
+    goals: ["知道 try/catch 适合包裹可能失败的逻辑", "会区分给开发者和给用户的提示", "能为失败结果准备回退方案"],
+    steps: [
+      "先找出哪一步可能失败，例如解析、请求或读取本地数据。",
+      "再用 try/catch 捕获错误，并记录技术信息。",
+      "最后给用户显示简洁可执行的提示，例如“请重试”或“请检查输入”。",
+    ],
+    pitfalls: ["不要把所有错误都吞掉，否则排查问题会更困难。", "给用户的提示不应只显示原始报错堆栈。"],
+    code: `try {\n  const raw = localStorage.getItem("profile");\n  const profile = JSON.parse(raw);\n  console.log(profile.name);\n} catch (error) {\n  console.error("读取资料失败", error);\n}`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">模拟出错</button><p id="out">等待中</p><script>document.getElementById('run').onclick=()=>{try{JSON.parse('{bad json}');}catch(error){document.getElementById('out').textContent='读取失败，请检查数据后重试';}};</script></body>`,
+    practiceHint: "把你的表单、请求或 localStorage 示例都补上一段“出错时怎么办”的分支。",
+  },
+  {
+    id: 23,
+    level: "hard",
+    category: "语言机制",
+    title: "this、call / apply / bind 的使用边界",
+    summary: "this 的难点不在定义，而在“调用方式一变，指向就可能变”；call、apply、bind 正是为了解决这种变化。",
+    goals: ["理解普通函数 this 会受调用方式影响", "知道 call / apply 立即调用、bind 返回新函数", "能修复方法被脱离对象调用时的 this 问题"],
+    steps: [
+      "先比较 obj.say() 与直接提取 say 再调用的区别。",
+      "再分别试试 call、apply、bind，让同一个函数在不同对象上下文里运行。",
+      "最后观察箭头函数为什么不适合拿来动态绑定 this。",
+    ],
+    pitfalls: ["箭头函数没有自己的 this，不能用 call / apply 改写它的指向。", "bind 不会立刻执行，而是返回一个绑定了 this 的新函数。"],
+    code: `const user = {\n  name: "小林",\n  say() {\n    return "你好，" + this.name;\n  },\n};\nconst say = user.say;\nconsole.log(say.call({ name: "老师" }));`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">切换调用对象</button><p id="out">等待中</p><script>const user={name:'小林',say(){return '你好，'+this.name;}};const say=user.say;document.getElementById('run').onclick=()=>{document.getElementById('out').textContent=say.call({name:'老师'});};</script></body>`,
+    practiceHint: "把对象方法交给 setTimeout 或事件回调后，再想办法保证 this 仍然正确。",
+  },
+  {
+    id: 24,
+    level: "hard",
+    category: "性能优化",
+    title: "渲染性能：减少重复计算与无意义更新",
+    summary: "性能优化不一定从复杂算法开始，很多时候只是避免频繁改 DOM、重复计算和不必要的监听。",
+    goals: ["知道频繁改 DOM 会带来额外开销", "会先缓存重复使用的数据和元素", "能把高频事件和防抖 / 节流联系起来"],
+    steps: [
+      "先找出高频触发点，例如 scroll、resize、input。",
+      "再把重复查询 DOM、重复创建节点的操作收拢起来。",
+      "最后为页面补上批量更新、延迟更新或按需更新的思路。",
+    ],
+    pitfalls: ["性能优化前先确定瓶颈，不要盲目“到处缓存”。", "为性能写的代码也要保证可读性和可维护性。"],
+    code: `const list = document.querySelector("#list");\nconst fragment = document.createDocumentFragment();\nfor (let i = 0; i < 3; i += 1) {\n  const item = document.createElement("li");\n  item.textContent = "项目 " + (i + 1);\n  fragment.appendChild(item);\n}\nlist.appendChild(fragment);`,
+    previewDoc: `<body style="font-family:Arial;padding:16px"><button id="run">批量渲染</button><ul id="list"></ul><script>document.getElementById('run').onclick=()=>{const list=document.getElementById('list');list.innerHTML='';const fragment=document.createDocumentFragment();for(let i=0;i<5;i+=1){const item=document.createElement('li');item.textContent='项目 '+(i+1);fragment.appendChild(item);}list.appendChild(fragment);};</script></body>`,
+    practiceHint: "观察你的实战题里哪些地方会重复查 DOM 或在循环里频繁改页面，再尝试优化。",
+  },
 ];
 
 const choiceQuestions = [
@@ -398,6 +536,15 @@ const choiceQuestions = [
   { question: "filter 回调通常应该返回什么？", options: ["一个数组", "一个布尔结果", "一个对象", "一个索引"], answer: 1, explanation: "返回 true 的项会被保留。", difficulty: "intermediate", topic: "数组方法", source: "新增" },
   { question: "structuredClone 常用于？", options: ["深拷贝可克隆的数据", "发起网络请求", "创建原型链", "遍历对象"], answer: 0, explanation: "structuredClone 是原生深拷贝方案之一。", difficulty: "hard", topic: "对象复制", source: "新增" },
   { question: "event.target 表示什么？", options: ["绑定事件的父元素", "真正触发事件的元素", "浏览器窗口", "事件名称"], answer: 1, explanation: "event.target 是事件实际发生的目标元素。", difficulty: "basic", topic: "事件", source: "新增" },
+  { question: "模板字符串中用于插入表达式的写法是？", options: ["{{ value }}", "${value}", "(value)", "[value]"], answer: 1, explanation: "模板字符串使用反引号包裹，并通过 ${...} 插入表达式。", difficulty: "basic", topic: "字符串", source: "新增" },
+  { question: "input 元素的 value 读取出来默认是什么类型？", options: ["number", "boolean", "string", "object"], answer: 2, explanation: "无论输入框类型如何，value 默认读取为字符串。", difficulty: "basic", topic: "表单", source: "新增" },
+  { question: "检查 fetch 响应是否成功时，常用哪个属性？", options: ["response.statusTextOnly", "response.ok", "response.done", "response.bodyUsedOnly"], answer: 1, explanation: "response.ok 可快速判断状态码是否落在 200-299。", difficulty: "intermediate", topic: "fetch", source: "新增" },
+  { question: "catch(error) 更适合负责什么？", options: ["生成 HTML 结构", "捕获失败并给出兜底处理", "自动重试所有请求", "替代所有 if 判断"], answer: 1, explanation: "错误处理的重点是识别失败、记录信息并做兜底。", difficulty: "intermediate", topic: "错误处理", source: "新增" },
+  { question: "bind 的返回值通常是？", options: ["原对象", "一个已绑定 this 的新函数", "立即执行结果", "Promise"], answer: 1, explanation: "bind 不会立刻调用，而是返回绑定后的函数。", difficulty: "hard", topic: "this", source: "新增" },
+  { question: "DocumentFragment 更适合用在什么场景？", options: ["批量插入多个节点", "读取 localStorage", "取消事件冒泡", "创建 Promise"], answer: 0, explanation: "它适合减少多次逐个插入 DOM 带来的额外开销。", difficulty: "hard", topic: "性能", source: "新增" },
+  { question: "下面哪种做法更适合优化高频输入触发的搜索？", options: ["每敲一个字都立刻发请求", "使用防抖延迟触发", "每次都刷新整个页面", "只用 alert 提示"], answer: 1, explanation: "输入搜索更适合防抖，减少无意义重复执行。", difficulty: "hard", topic: "性能", source: "新增" },
+  { question: "块级作用域常见于哪组关键字？", options: ["let / const", "var / function", "if / else", "true / false"], answer: 0, explanation: "let 和 const 会把变量限制在当前代码块中。", difficulty: "basic", topic: "作用域", source: "新增" },
+  { question: "用户可执行的错误提示更应该像哪一种？", options: ["SyntaxError: Unexpected token", "请求失败，请重试或检查网络", "undefined at <anonymous>", "VM123:1"], answer: 1, explanation: "面向用户的提示要简洁、可理解、可执行。", difficulty: "intermediate", topic: "错误处理", source: "新增" },
 ];
 
 const fillQuestions = [
@@ -440,6 +587,15 @@ const fillQuestions = [
   { question: "请填空：把对象转成 [key, value] 数组列表的方法是 Object.____()。", answers: ["entries"], difficulty: "intermediate", topic: "对象", source: "新增" },
   { question: "请填空：取消 setTimeout 定时器常用的方法是 ____()。", answers: ["clearTimeout"], difficulty: "basic", topic: "定时器", source: "新增" },
   { question: "请填空：更适合做浏览器动画帧更新的 API 是 ____()。", answers: ["requestAnimationFrame"], difficulty: "hard", topic: "性能", source: "新增" },
+  { question: "请填空：模板字符串中插入表达式的写法是 ____。", answers: ["${...}", "${ }"], difficulty: "basic", topic: "字符串", source: "新增" },
+  { question: "请填空：读取输入框内容时，常见属性是元素的 ____。", answers: ["value"], difficulty: "basic", topic: "表单", source: "新增" },
+  { question: "请填空：fetch 响应对象中常用来判断是否请求成功的属性是 ____。", answers: ["ok"], difficulty: "intermediate", topic: "fetch", source: "新增" },
+  { question: "请填空：捕获同步异常常用的语句是 try...____。", answers: ["catch"], difficulty: "intermediate", topic: "错误处理", source: "新增" },
+  { question: "请填空：不会立刻执行、而是返回绑定后函数的方法是 ____。", answers: ["bind"], difficulty: "hard", topic: "this", source: "新增" },
+  { question: "请填空：用于批量插入节点、减少零散 DOM 更新的对象是 Document____。", answers: ["Fragment"], difficulty: "hard", topic: "性能", source: "新增" },
+  { question: "请填空：限制搜索输入高频触发的常见技巧叫 ____。", answers: ["debounce", "防抖"], difficulty: "hard", topic: "性能", source: "新增" },
+  { question: "请填空：let 和 const 提供的是 ____ 级作用域。", answers: ["块", "block", "块级"], difficulty: "basic", topic: "作用域", source: "新增" },
+  { question: "请填空：把失败原因记录给开发者排查时，常用的方法是 console.____()。", answers: ["error"], difficulty: "intermediate", topic: "错误处理", source: "新增" },
 ];
 
 const practiceQuestions = [
@@ -479,6 +635,12 @@ const practiceQuestions = [
   ["请求重试面板", "模拟一个会失败的异步请求，点击按钮后最多重试 3 次并展示状态。", "hard", "异步重试", "新增"],
   ["多接口并发加载", "同时请求多个接口，全部成功后再统一渲染结果。", "hard", "Promise.all", "新增"],
   ["拖拽上传预览（简化）", "实现拖拽文件到容器后显示文件名和图片预览。", "hard", "文件与拖拽", "新增"],
+  ["个人资料卡生成器", "输入昵称、城市和学习目标后，实时生成一张资料展示卡。", "basic", "表单与 DOM", "新增挑战"],
+  ["价格筛选与统计面板", "输入最低价并筛选课程列表，同时显示筛选后的数量和总价。", "intermediate", "数组方法", "新增挑战"],
+  ["学习清单本地保存器", "实现任务添加、完成切换、筛选和 localStorage 持久化。", "intermediate", "状态管理", "新增挑战"],
+  ["异步数据看板", "同时请求多份数据，展示加载、成功、失败和重试状态。", "hard", "异步与状态", "新增挑战"],
+  ["可撤销提示队列", "实现消息通知列表，支持自动消失、手动关闭和撤销最近一次关闭。", "hard", "定时器与闭包", "新增挑战"],
+  ["性能优化搜索页", "实现输入防抖、结果高亮和无结果提示，避免高频重复渲染。", "hard", "性能", "新增挑战"],
 ];
 
 function buildPracticeQuestions() {
@@ -546,9 +708,18 @@ function getQuestionLinks(currentDifficulty, currentType) {
     .join("");
 }
 
+function getQuestionCountByLevel(level) {
+  return (
+    allChoiceQuestions.filter((item) => item.difficulty === level).length +
+    allFillQuestions.filter((item) => item.difficulty === level).length +
+    allPracticeQuestions.filter((item) => item.difficulty === level).length
+  );
+}
+
 function renderHome() {
   const home = document.getElementById("home-content");
   const totalQuestions = allChoiceQuestions.length + allFillQuestions.length + allPracticeQuestions.length;
+  const challengeCount = allPracticeQuestions.filter((item) => item.source.includes("挑战")).length;
   home.innerHTML = `
     <section class="stats-grid">
       <article class="stat-card">
@@ -567,12 +738,38 @@ function renderHome() {
         <strong>3 类题型</strong>
         <span>选择 / 填空 / 实战</span>
       </article>
+      <article class="stat-card">
+        <strong>${challengeCount}</strong>
+        <span>挑战项目</span>
+      </article>
     </section>
 
     <section class="content-block">
       <div class="section-head">
-        <h3>知识库分难度页面</h3>
-        <p>每个难度单独一页，适合按顺序阅读。</p>
+        <h3>推荐学习节奏</h3>
+        <p>先建立地图，再读知识，再做练习，最后用挑战项目把知识点串起来。</p>
+      </div>
+      <div class="route-grid feature-grid">
+        ${studyPhases
+          .map(
+            (phase) => `
+              <article class="route-card">
+                <h4>${phase.title}</h4>
+                <p>${phase.description}</p>
+                <ul>
+                  ${phase.actions.map((item) => `<li>${item}</li>`).join("")}
+                </ul>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
+
+    <section class="content-block">
+      <div class="section-head">
+        <h3>按学习阶段进入</h3>
+        <p>每个难度都给出清晰目标、推荐题型与题量，方便零基础用户判断下一步。</p>
       </div>
       <div class="route-grid">
         ${Object.entries(levelMeta)
@@ -584,7 +781,11 @@ function renderHome() {
                 <ul>
                   ${meta.studyPlan.map((item) => `<li>${item}</li>`).join("")}
                 </ul>
-                <a class="btn primary" href="./knowledge.html?level=${key}">进入${meta.label}知识库</a>
+                <p class="route-meta">当前级别共有 ${knowledgeBase.filter((item) => item.level === key).length} 个知识主题、${getQuestionCountByLevel(key)} 道练习。</p>
+                <div class="row">
+                  <a class="btn primary" href="./knowledge.html?level=${key}">先读${meta.label}知识库</a>
+                  <a class="btn" href="./questions.html?difficulty=${key}&type=${meta.recommendedType}">做推荐练习</a>
+                </div>
               </article>
             `
           )
@@ -601,6 +802,27 @@ function renderHome() {
         ${getQuestionLinks("basic", "choice")}
       </div>
     </section>
+
+    <section class="content-block">
+      <div class="section-head">
+        <h3>挑战项目路线</h3>
+        <p>当你觉得常规题目已经不够用了，可以从这些更完整的项目开始。</p>
+      </div>
+      <div class="challenge-grid">
+        ${challengeProjects
+          .map(
+            (project) => `
+              <article class="challenge-card ${levelMeta[project.level].colorClass}">
+                <span class="tag">${levelMeta[project.level].label}</span>
+                <h4>${project.title}</h4>
+                <p>${project.summary}</p>
+                <a class="btn primary" href="./questions.html?difficulty=${project.level}&type=practice">查看该级别实战题</a>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </section>
   `;
 }
 
@@ -611,6 +833,7 @@ function renderKnowledge() {
   const activeLevel = levelMeta[level] ? level : "basic";
   const items = knowledgeBase.filter((item) => item.level === activeLevel);
   const nextQuestionType = levelMeta[activeLevel].recommendedType;
+  const companionQuestionCount = getQuestionCountByLevel(activeLevel);
 
   const createList = (tagName, entries) => {
     const list = document.createElement(tagName);
@@ -640,7 +863,7 @@ function renderKnowledge() {
   const title = document.createElement("h2");
   title.textContent = `${levelMeta[activeLevel].label}知识库`;
   const description = document.createElement("p");
-  description.textContent = levelMeta[activeLevel].description;
+  description.textContent = `${levelMeta[activeLevel].description} 本页共 ${items.length} 个主题，建议按顺序学习后立即去做配套练习。`;
   sectionHead.append(title, description);
 
   const pillRow = document.createElement("div");
@@ -667,14 +890,27 @@ function renderKnowledge() {
   const practiceTitle = document.createElement("h3");
   practiceTitle.textContent = "配套练习建议";
   const practiceText = document.createElement("p");
-  practiceText.textContent = `读完这一页后，建议去做 ${levelMeta[activeLevel].label} 难度的${questionTypeMeta[nextQuestionType].label}。`;
+  practiceText.textContent = `读完这一页后，建议去做 ${levelMeta[activeLevel].label} 难度的${questionTypeMeta[nextQuestionType].label}。当前级别共有 ${companionQuestionCount} 道题，可按“选择 / 填空 / 实战”逐步升级。`;
   const practiceLink = document.createElement("a");
   practiceLink.className = "btn primary";
   practiceLink.href = `./questions.html?difficulty=${activeLevel}&type=${nextQuestionType}`;
   practiceLink.textContent = "去做对应练习";
   practiceCard.append(practiceTitle, practiceText, practiceLink);
 
-  studyGrid.append(readingCard, practiceCard);
+  const overviewCard = document.createElement("article");
+  overviewCard.className = "study-card";
+  const overviewTitle = document.createElement("h3");
+  overviewTitle.textContent = "本页覆盖主题";
+  const overviewList = document.createElement("ul");
+  overviewList.className = "topic-list";
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item.title;
+    overviewList.appendChild(li);
+  });
+  overviewCard.append(overviewTitle, overviewList);
+
+  studyGrid.append(readingCard, practiceCard, overviewCard);
   highlight.append(sectionHead, pillRow, studyGrid);
 
   const cardsSection = document.createElement("section");
@@ -914,6 +1150,10 @@ function renderQuestions() {
     fill: allFillQuestions.length,
     practice: allPracticeQuestions.length,
   };
+  const activeKnowledgeCount = knowledgeBase.filter((item) => item.level === activeDifficulty).length;
+  const challengeItems = allPracticeQuestions
+    .filter((item) => item.difficulty === activeDifficulty && item.source.includes("挑战"))
+    .slice(0, 3);
 
   let questionMarkup = "";
   if (activeType === "choice") questionMarkup = renderChoiceQuestions(items);
@@ -924,7 +1164,7 @@ function renderQuestions() {
     <section class="content-block highlight-block ${levelMeta[activeDifficulty].colorClass}">
       <div class="section-head">
         <h2>${levelMeta[activeDifficulty].label} · ${questionTypeMeta[activeType].label}</h2>
-        <p>${questionTypeMeta[activeType].intro}</p>
+        <p>${questionTypeMeta[activeType].intro} 建议先回顾 ${activeKnowledgeCount} 个同级别知识主题，再按“基础概念 → 常见错误 → 综合应用”顺序刷题。</p>
       </div>
       <div class="matrix-grid">${getQuestionLinks(activeDifficulty, activeType)}</div>
       <div class="stats-grid compact-stats">
@@ -940,8 +1180,63 @@ function renderQuestions() {
           <strong>${levelMeta[activeDifficulty].label}</strong>
           <span>${levelMeta[activeDifficulty].short}</span>
         </article>
+        <article class="stat-card">
+          <strong>${activeKnowledgeCount}</strong>
+          <span>同级别知识主题</span>
+        </article>
       </div>
     </section>
+
+    <section class="content-block question-guide">
+      <div class="section-head">
+        <h3>刷题建议</h3>
+        <p>先用本页题型建立稳定手感，再切换到其他题型补齐记忆与动手能力。</p>
+      </div>
+      <div class="study-grid">
+        <article class="study-card">
+          <h4>推荐顺序</h4>
+          <ol>
+            <li>先完成当前页面全部题目，记录易错知识点。</li>
+            <li>回到知识库复习对应主题，再重新做错题。</li>
+            <li>若当前为实战题，先完成最小功能，再补空状态和异常处理。</li>
+          </ol>
+        </article>
+        <article class="study-card">
+          <h4>配套跳转</h4>
+          <p>如果发现概念不稳，先回到 ${levelMeta[activeDifficulty].label} 知识库补课，再回来继续刷题。</p>
+          <div class="row">
+            <a class="btn primary" href="./knowledge.html?level=${activeDifficulty}">回到知识库</a>
+            <a class="btn" href="./questions.html?difficulty=${activeDifficulty}&type=practice">切换到实战题</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    ${
+      activeType === "practice" && challengeItems.length
+        ? `
+          <section class="content-block">
+            <div class="section-head">
+              <h3>挑战升级</h3>
+              <p>如果你已经能完成当前页面题目，可以继续尝试这些更完整的项目。</p>
+            </div>
+            <div class="challenge-grid">
+              ${challengeItems
+                .map(
+                  (item) => `
+                    <article class="challenge-card ${levelMeta[item.difficulty].colorClass}">
+                      <span class="tag">${item.source}</span>
+                      <h4>${item.title}</h4>
+                      <p>${item.requirement}</p>
+                    </article>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+        `
+        : ""
+    }
 
     <section class="cards question-cards">${questionMarkup}</section>
   `;
