@@ -10,7 +10,7 @@
 
 直接在浏览器打开以下文件即可：
 
-- `/home/runner/work/JavaScript-Exercise/JavaScript-Exercise/index.html`
+- `./index.html`
 
 ## 内容说明
 

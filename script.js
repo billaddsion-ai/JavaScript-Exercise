@@ -92,7 +92,7 @@ const knowledgeBase = [
     level: "进阶",
     title: "防抖（debounce）",
     description: "高频事件触发时仅在停止后执行。",
-    code: `function debounce(fn,delay){\n  let timer;\n  return (...args)=>{clearTimeout(timer);timer=setTimeout(()=>fn(...args),delay)}\n}`,
+    code: `function debounce(fn, delay) {\n  let timer;\n  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };\n}`,
     previewDoc: `<body><input id="i" placeholder="快速输入"><p id="o">等待触发...</p><script>function debounce(fn,d){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),d)}}const o=document.getElementById("o");document.getElementById("i").addEventListener("input",debounce((e)=>{o.textContent="最终值: "+e.target.value},500));</script></body>`,
   },
   {
