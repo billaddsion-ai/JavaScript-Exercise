@@ -480,7 +480,7 @@ const practiceQuestions = [
 
 function buildPracticeQuestions() {
   return practiceQuestions.map(([title, requirement, difficulty, topic, source], index) => {
-    const starter = `<!doctype html>\n<html lang="zh-CN">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>${title}</title>\n  <style>\n    body{font-family:Arial,sans-serif;padding:16px;background:#f8fafc}\.app{max-width:720px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.08)}button,input,select,textarea{margin:6px 0;padding:8px 12px;font-size:14px}ul{padding-left:20px}\n  </style>\n</head>\n<body>\n  <div class="app">\n    <h2>${title}</h2>\n    <p>题目要求：${requirement}</p>\n    <div id="root"></div>\n  </div>\n  <script>\n    const root = document.getElementById("root");\n    root.innerHTML = "<p>请在这里完成题目。建议先写 HTML 结构，再补充交互逻辑。</p>";\n  </script>\n</body>\n</html>`;
+    const starter = `<!doctype html>\n<html lang="zh-CN">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>${title}</title>\n  <style>\n    body{font-family:Arial,sans-serif;padding:16px;background:#f8fafc}.app{max-width:720px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.08)}button,input,select,textarea{margin:6px 0;padding:8px 12px;font-size:14px}ul{padding-left:20px}\n  </style>\n</head>\n<body>\n  <div class="app">\n    <h2>${title}</h2>\n    <p>题目要求：${requirement}</p>\n    <div id="root"></div>\n  </div>\n  <script>\n    const root = document.getElementById("root");\n    root.innerHTML = "<p>请在这里完成题目。建议先写 HTML 结构，再补充交互逻辑。</p>";\n  </script>\n</body>\n</html>`;
     const reference = `建议先拆成 3 步：\n1. 写出题目需要的基础 DOM 结构；\n2. 绑定事件，处理输入、点击或异步流程；\n3. 把结果渲染回页面，并补上异常情况处理。`;
     return {
       id: index + 1,
@@ -609,80 +609,138 @@ function renderKnowledge() {
   const items = knowledgeBase.filter((item) => item.level === activeLevel);
   const nextQuestionType = activeLevel === "basic" ? "choice" : activeLevel === "intermediate" ? "fill" : "practice";
 
-  container.innerHTML = `
-    <section class="content-block highlight-block ${levelMeta[activeLevel].colorClass}">
-      <div class="section-head">
-        <h2>${levelMeta[activeLevel].label}知识库</h2>
-        <p>${levelMeta[activeLevel].description}</p>
-      </div>
-      <div class="pill-row">${getLevelLinks(activeLevel)}</div>
-      <div class="study-grid">
-        <article class="study-card">
-          <h3>阅读方式</h3>
-          <ol>
-            ${levelMeta[activeLevel].studyPlan.map((item) => `<li>${item}</li>`).join("")}
-          </ol>
-        </article>
-        <article class="study-card">
-          <h3>配套练习建议</h3>
-          <p>读完这一页后，建议去做 <strong>${levelMeta[activeLevel].label}</strong> 难度的${questionTypeMeta[nextQuestionType].label}。</p>
-          <a class="btn primary" href="./questions.html?difficulty=${activeLevel}&type=${nextQuestionType}">去做对应练习</a>
-        </article>
-      </div>
-    </section>
+  const createList = (tagName, entries) => {
+    const list = document.createElement(tagName);
+    entries.forEach((entry) => {
+      const li = document.createElement("li");
+      li.textContent = entry;
+      list.appendChild(li);
+    });
+    return list;
+  };
 
-    <section class="cards knowledge-cards">
-      ${items
-        .map(
-          (item, index) => `
-            <article class="card knowledge-card">
-              <div class="tags">
-                <span class="tag">${levelMeta[item.level].label}</span>
-                <span class="tag">${item.category}</span>
-              </div>
-              <h3>${index + 1}. ${item.title}</h3>
-              <p class="lead">${item.summary}</p>
+  const createSection = (title, listTag, entries, extraClass = "") => {
+    const section = document.createElement("div");
+    section.className = `card-section ${extraClass}`.trim();
+    const heading = document.createElement("h4");
+    heading.textContent = title;
+    section.appendChild(heading);
+    section.appendChild(createList(listTag, entries));
+    return section;
+  };
 
-              <div class="card-section">
-                <h4>你将学会</h4>
-                <ul>
-                  ${item.goals.map((goal) => `<li>${goal}</li>`).join("")}
-                </ul>
-              </div>
+  const highlight = document.createElement("section");
+  highlight.className = `content-block highlight-block ${levelMeta[activeLevel].colorClass}`;
 
-              <div class="card-section">
-                <h4>一步步理解</h4>
-                <ol>
-                  ${item.steps.map((step) => `<li>${step}</li>`).join("")}
-                </ol>
-              </div>
+  const sectionHead = document.createElement("div");
+  sectionHead.className = "section-head";
+  const title = document.createElement("h2");
+  title.textContent = `${levelMeta[activeLevel].label}知识库`;
+  const description = document.createElement("p");
+  description.textContent = levelMeta[activeLevel].description;
+  sectionHead.append(title, description);
 
-              <div class="card-section">
-                <h4>常见易错点</h4>
-                <ul>
-                  ${item.pitfalls.map((pitfall) => `<li>${pitfall}</li>`).join("")}
-                </ul>
-              </div>
+  const pillRow = document.createElement("div");
+  pillRow.className = "pill-row";
+  Object.entries(levelMeta).forEach(([key, meta]) => {
+    const link = document.createElement("a");
+    link.className = `pill ${key === activeLevel ? "active" : ""}`.trim();
+    link.href = `./knowledge.html?level=${key}`;
+    link.textContent = meta.label;
+    pillRow.appendChild(link);
+  });
 
-              <div class="card-section">
-                <h4>示例代码</h4>
-                <pre><code>${escapeHtml(item.code)}</code></pre>
-                <div class="row">
-                  <button class="btn primary run-knowledge" data-id="${item.id}">运行示例</button>
-                </div>
-                <iframe class="preview" id="knowledge-preview-${item.id}" sandbox="allow-scripts"></iframe>
-              </div>
+  const studyGrid = document.createElement("div");
+  studyGrid.className = "study-grid";
 
-              <div class="card-section practice-tip">
-                <h4>动手建议</h4>
-                <p>${item.practiceHint}</p>
-              </div>
-            </article>
-          `
-        )
-        .join("")}
-    </section>
-  `;
+  const readingCard = document.createElement("article");
+  readingCard.className = "study-card";
+  const readingTitle = document.createElement("h3");
+  readingTitle.textContent = "阅读方式";
+  readingCard.append(readingTitle, createList("ol", levelMeta[activeLevel].studyPlan));
+
+  const practiceCard = document.createElement("article");
+  practiceCard.className = "study-card";
+  const practiceTitle = document.createElement("h3");
+  practiceTitle.textContent = "配套练习建议";
+  const practiceText = document.createElement("p");
+  practiceText.textContent = `读完这一页后，建议去做 ${levelMeta[activeLevel].label} 难度的${questionTypeMeta[nextQuestionType].label}。`;
+  const practiceLink = document.createElement("a");
+  practiceLink.className = "btn primary";
+  practiceLink.href = `./questions.html?difficulty=${activeLevel}&type=${nextQuestionType}`;
+  practiceLink.textContent = "去做对应练习";
+  practiceCard.append(practiceTitle, practiceText, practiceLink);
+
+  studyGrid.append(readingCard, practiceCard);
+  highlight.append(sectionHead, pillRow, studyGrid);
+
+  const cardsSection = document.createElement("section");
+  cardsSection.className = "cards knowledge-cards";
+
+  items.forEach((item, index) => {
+    const article = document.createElement("article");
+    article.className = "card knowledge-card";
+
+    const tags = document.createElement("div");
+    tags.className = "tags";
+    [levelMeta[item.level].label, item.category].forEach((text) => {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = text;
+      tags.appendChild(tag);
+    });
+
+    const heading = document.createElement("h3");
+    heading.textContent = `${index + 1}. ${item.title}`;
+
+    const lead = document.createElement("p");
+    lead.className = "lead";
+    lead.textContent = item.summary;
+
+    const codeSection = document.createElement("div");
+    codeSection.className = "card-section";
+    const codeTitle = document.createElement("h4");
+    codeTitle.textContent = "示例代码";
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
+    code.textContent = item.code;
+    pre.appendChild(code);
+    const buttonRow = document.createElement("div");
+    buttonRow.className = "row";
+    const runButton = document.createElement("button");
+    runButton.className = "btn primary run-knowledge";
+    runButton.type = "button";
+    runButton.dataset.id = String(item.id);
+    runButton.textContent = "运行示例";
+    buttonRow.appendChild(runButton);
+    const iframe = document.createElement("iframe");
+    iframe.className = "preview";
+    iframe.id = `knowledge-preview-${item.id}`;
+    iframe.setAttribute("sandbox", "allow-scripts");
+    codeSection.append(codeTitle, pre, buttonRow, iframe);
+
+    const practiceTip = document.createElement("div");
+    practiceTip.className = "card-section practice-tip";
+    const practiceTipTitle = document.createElement("h4");
+    practiceTipTitle.textContent = "动手建议";
+    const practiceTipText = document.createElement("p");
+    practiceTipText.textContent = item.practiceHint;
+    practiceTip.append(practiceTipTitle, practiceTipText);
+
+    article.append(
+      tags,
+      heading,
+      lead,
+      createSection("你将学会", "ul", item.goals),
+      createSection("一步步理解", "ol", item.steps),
+      createSection("常见易错点", "ul", item.pitfalls),
+      codeSection,
+      practiceTip
+    );
+    cardsSection.appendChild(article);
+  });
+
+  container.replaceChildren(highlight, cardsSection);
 
   document.querySelectorAll(".run-knowledge").forEach((button) => {
     button.addEventListener("click", () => {
