@@ -5,6 +5,7 @@ const levelMeta = {
     description: "面向第一次接触 JavaScript 的学习者，重点是认识概念、会读代码、能改简单示例。",
     studyPlan: ["先看概念解释", "再抄一遍示例代码", "最后运行示例并试着改动数字、文本、条件"],
     colorClass: "basic",
+    recommendedType: "choice",
   },
   intermediate: {
     label: "进阶",
@@ -12,6 +13,7 @@ const levelMeta = {
     description: "适合已经掌握基础语法的学习者，开始接触异步、模块化、存储、数据处理。",
     studyPlan: ["先理解为什么要这样写", "再对比基础写法和进阶写法", "最后完成对应练习"],
     colorClass: "intermediate",
+    recommendedType: "fill",
   },
   hard: {
     label: "困难",
@@ -19,6 +21,7 @@ const levelMeta = {
     description: "适合准备做真实项目或面试提升的学习者，内容包含原型链、事件循环、性能优化等。",
     studyPlan: ["先画出执行流程", "再阅读代码结果为什么如此", "最后尝试自己封装函数或完成复杂题目"],
     colorClass: "hard",
+    recommendedType: "practice",
   },
 };
 
@@ -347,7 +350,7 @@ const knowledgeBase = [
 ];
 
 const choiceQuestions = [
-  { question: "以下哪个关键字用于声明块级作用域变量？", options: ["var", "const", "function", "import"], answer: 1, explanation: "const 和 let 都是块级作用域，这题答案选 const。", difficulty: "basic", topic: "变量", source: "原题整理" },
+  { question: "以下哪个关键字通常用于声明不会被重新赋值的块级作用域变量？", options: ["var", "const", "function", "import"], answer: 1, explanation: "const 是块级作用域，也适合表示“这个变量名之后不再改指向”。", difficulty: "basic", topic: "变量", source: "原题整理" },
   { question: "typeof null 的结果是？", options: ["null", "object", "undefined", "number"], answer: 1, explanation: "历史遗留问题，结果为 object。", difficulty: "basic", topic: "数据类型", source: "原题整理" },
   { question: "哪一个方法会返回新数组且不改变原数组？", options: ["splice", "push", "slice", "sort"], answer: 2, explanation: "slice 会返回浅拷贝数组。", difficulty: "basic", topic: "数组", source: "原题整理" },
   { question: "Promise 链中处理异常常用？", options: [".catch()", ".finally()", ".map()", ".allSettled()"], answer: 0, explanation: ".catch() 用于捕获拒绝状态或 throw 异常。", difficulty: "intermediate", topic: "Promise", source: "原题整理" },
@@ -481,7 +484,7 @@ const practiceQuestions = [
 function buildPracticeQuestions() {
   return practiceQuestions.map(([title, requirement, difficulty, topic, source], index) => {
     const starter = `<!doctype html>\n<html lang="zh-CN">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>${title}</title>\n  <style>\n    body{font-family:Arial,sans-serif;padding:16px;background:#f8fafc}.app{max-width:720px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.08)}button,input,select,textarea{margin:6px 0;padding:8px 12px;font-size:14px}ul{padding-left:20px}\n  </style>\n</head>\n<body>\n  <div class="app">\n    <h2>${title}</h2>\n    <p>题目要求：${requirement}</p>\n    <div id="root"></div>\n  </div>\n  <script>\n    const root = document.getElementById("root");\n    root.innerHTML = "<p>请在这里完成题目。建议先写 HTML 结构，再补充交互逻辑。</p>";\n  </script>\n</body>\n</html>`;
-    const reference = `建议先拆成 3 步：\n1. 写出题目需要的基础 DOM 结构；\n2. 绑定事件，处理输入、点击或异步流程；\n3. 把结果渲染回页面，并补上异常情况处理。`;
+    const reference = `解题提示：\n1. 先围绕“${title}”写出最小可用的 HTML 结构。\n2. 再实现与“${topic}”相关的核心交互，确保满足：${requirement}\n3. 最后补上边界处理，例如空输入、重复点击、请求失败或重置状态。`;
     return {
       id: index + 1,
       title,
@@ -607,7 +610,7 @@ function renderKnowledge() {
   const level = getParam("level", "basic");
   const activeLevel = levelMeta[level] ? level : "basic";
   const items = knowledgeBase.filter((item) => item.level === activeLevel);
-  const nextQuestionType = activeLevel === "basic" ? "choice" : activeLevel === "intermediate" ? "fill" : "practice";
+  const nextQuestionType = levelMeta[activeLevel].recommendedType;
 
   const createList = (tagName, entries) => {
     const list = document.createElement(tagName);
