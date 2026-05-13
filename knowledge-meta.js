@@ -1,9 +1,9 @@
-window.knowledgeExpansionEstimate = "本轮继续补齐 4 个独立知识页，并新增 API 速查页、术语索引、跨知识点项目页；目前累计 28 个独立知识页 + 1 个知识总览页，适合继续按专题扩展。";
+window.knowledgeExpansionEstimate = "本轮继续补齐 4 个独立知识页，并把浏览器对象速查、术语索引、项目拆解继续往前推进一轮；目前累计 32 个独立知识页 + 1 个知识总览页，仍适合继续按专题扩展。";
 
 window.knowledgeBacklog = [
-  "继续补充 sessionStorage、Cookie、URL / URLSearchParams、数组排序策略等独立知识页。",
-  "继续扩展与 runoob 风格接近的示意图、API 对照表和更细的浏览器对象速查。",
-  "继续把跨知识点项目拆成更细的步骤页，并补更多项目到题库与知识页之间。",
+  "继续补充 storage 事件、History / hash 路由、URL hash 与导航状态等独立知识页。",
+  "继续扩展更像教程站的 API 对照表，例如数组变异/非变异方法、事件流阶段、异步并发策略。",
+  "继续把跨知识点项目拆成真正的独立步骤页面，并给更多题目补配套项目路线。",
 ];
 
 window.knowledgeGroups = {
@@ -348,12 +348,56 @@ window.knowledgeArticleMeta = {
     funIdeas: ["用 Set 给标签数组去重，再用 Map 统计每个标签出现次数。"],
     relatedIds: [5, 9, 20],
   },
+  29: {
+    fileName: "knowledge-29-sessionstorage.html",
+    group: "async",
+    point: "sessionStorage 与临时状态保存",
+    advancedNotes: [
+      "sessionStorage 很适合保存“当前标签页还没提交流程”的临时状态，例如筛选条件、草稿步骤、分步表单。",
+      "它和 localStorage 的区别要先讲“生命周期”，再讲“跨标签页是否共享”。",
+    ],
+    funIdeas: ["做一个“本页临时筛选器”，刷新后仍保留，换新标签页时重新开始。"],
+    relatedIds: [12, 16, 31],
+  },
+  30: {
+    fileName: "knowledge-30-cookie.html",
+    group: "async",
+    point: "Cookie 基础与前端读取",
+    advancedNotes: [
+      "Cookie 更适合先建立“它是浏览器自动夹带的小文本”的直觉，再区分哪些属性能前端设置、哪些只是知道概念。",
+      "前端通常负责轻量偏好与演示性读写；遇到安全属性时，更重要的是知道边界，而不是在前端硬做所有事。",
+    ],
+    funIdeas: ["做一个“欢迎语偏好”示例，体验把主题色或称呼保存成 Cookie 字符串。"],
+    relatedIds: [12, 18, 31],
+  },
+  31: {
+    fileName: "knowledge-31-url-searchparams.html",
+    group: "dom",
+    point: "URL 与 URLSearchParams",
+    advancedNotes: [
+      "当页面状态需要可分享、可刷新恢复时，可以优先考虑把条件放进 URL 查询参数。",
+      "URLSearchParams 最适合和筛选器、分页、搜索词联动，帮助你把页面状态变成可复制链接。",
+    ],
+    funIdeas: ["做一个课程筛选链接生成器，把 level、keyword、sort 三个条件实时拼进地址。"],
+    relatedIds: [17, 26, 30],
+  },
+  32: {
+    fileName: "knowledge-32-array-sort.html",
+    group: "data",
+    point: "数组排序策略",
+    advancedNotes: [
+      "排序最容易踩坑的地方不是 API 名字，而是“默认按字符串排”和“比较函数返回值”的含义。",
+      "现代代码里还要顺手知道 toSorted 这类不改原数组的写法，方便减少副作用。",
+    ],
+    funIdeas: ["把课程列表按价格、评分、上新时间各排一遍，再比较原数组有没有被改动。"],
+    relatedIds: [9, 27, 28],
+  },
 };
 
 window.knowledgeSupportPages = [
   {
     title: "JavaScript API 速查页",
-    description: "把数组方法、DOM、异步、正则、BOM、Date / Math、Map / Set 按场景归档，适合遇到 API 时快速回查。",
+    description: "把数组方法、DOM、异步、存储、Cookie、URL / URLSearchParams、BOM 等按场景归档，适合遇到 API 时快速回查。",
     fileName: "api-reference.html",
     badge: "速查",
   },
@@ -365,7 +409,7 @@ window.knowledgeSupportPages = [
   },
   {
     title: "跨知识点项目页",
-    description: "把输入、存储、异步、性能等主题串成完整项目路线，方便从单点知识过渡到页面功能。",
+    description: "把输入、存储、URL 状态、异步、性能等主题串成完整项目路线，方便从单点知识过渡到页面功能。",
     fileName: "project-paths.html",
     badge: "项目",
   },
@@ -465,11 +509,18 @@ window.knowledgeApiSections = [
         tips: ["await 记得配合 try/catch。", "并发请求前先确认是否需要全部成功。"],
       },
       {
-        name: "localStorage / JSON.stringify / JSON.parse",
-        kind: "本地存储",
-        syntax: "localStorage.setItem('key', JSON.stringify(data))\nJSON.parse(localStorage.getItem('key'))",
-        description: "把轻量状态缓存到浏览器，适合草稿、偏好设置、学习进度。",
-        tips: ["取值可能是 null，要先判断。", "JSON.parse 建议放进 try/catch。"],
+        name: "localStorage / sessionStorage / JSON.stringify / JSON.parse",
+        kind: "Web Storage",
+        syntax: "sessionStorage.setItem('draft', value)\nlocalStorage.setItem('prefs', JSON.stringify(data))\nJSON.parse(localStorage.getItem('prefs'))",
+        description: "把轻量状态缓存到浏览器：sessionStorage 更适合当前标签页，localStorage 更适合跨刷新长期保留。",
+        tips: ["sessionStorage 与 localStorage 要先区分生命周期。", "JSON.parse 前先判断是否为 null。"],
+      },
+      {
+        name: "document.cookie",
+        kind: "Cookie",
+        syntax: "document.cookie = 'theme=dark; max-age=3600; path=/'\ndocument.cookie.split('; ')",
+        description: "适合认识 Cookie 的基础读写格式，以及它与 Storage、请求头之间的关系。",
+        tips: ["Cookie 更适合小体积文本。", "HttpOnly 这类安全属性要知道边界：前端只能理解概念，不能读取。"],
       },
       {
         name: "RegExp / test / match / replace",
@@ -477,6 +528,40 @@ window.knowledgeApiSections = [
         syntax: "/^\\w{4,12}$/.test(name)\ntext.match(/\\d+/g)\ntext.replace(/-/g, '/')",
         description: "输入校验、关键词提取、格式清洗时很常见。",
         tips: ["先写最小匹配规则，再逐步加复杂条件。", "全局匹配常配合 g 修饰符。"],
+      },
+    ],
+  },
+  {
+    title: "浏览器对象与地址栏速查",
+    summary: "把 window、document、location、URL、URLSearchParams 这些常见对象放在一起，更方便像教程站一样回查。",
+    entries: [
+      {
+        name: "window / document / navigator",
+        kind: "浏览器对象",
+        syntax: "window.innerWidth\ndocument.title\nnavigator.userAgent",
+        description: "分别代表窗口、页面文档和浏览器环境信息，是浏览器对象模型里最常接触的入口。",
+        tips: ["window 是很多全局 API 的宿主。", "读取 navigator 信息前先确认场景是否真的需要。"],
+      },
+      {
+        name: "location / history",
+        kind: "导航状态",
+        syntax: "location.href\nlocation.search\nhistory.back()\nhistory.pushState(state, '', url)",
+        description: "处理跳转、回退和地址栏状态时会频繁遇到。",
+        tips: ["改 location.href 通常会触发导航。", "pushState 更适合无刷新更新地址。"],
+      },
+      {
+        name: "URL / URLSearchParams",
+        kind: "地址解析",
+        syntax: "const url = new URL(location.href)\nconst params = new URLSearchParams('?level=basic')\nparams.set('sort', 'score-desc')",
+        description: "适合解析路径、拼接查询参数、生成可分享链接。",
+        tips: ["多个筛选条件很适合交给 URLSearchParams 管理。", "需要分享页面状态时优先考虑 URL。"],
+      },
+      {
+        name: "sort / toSorted",
+        kind: "排序策略",
+        syntax: "list.sort((a, b) => a.score - b.score)\nlist.toSorted((a, b) => b.time - a.time)",
+        description: "对列表做升序、降序、多条件排序时最常回查。",
+        tips: ["sort 会改原数组。", "toSorted 返回新数组，更适合保留原数据。"],
       },
     ],
   },
@@ -555,6 +640,30 @@ window.knowledgeGlossaryTerms = [
     remember: "真正的异步页面不只处理成功结果。",
     relatedIds: [10, 11, 17],
   },
+  {
+    term: "sessionStorage",
+    definition: "当前标签页级别的浏览器存储，适合保存临时状态或短流程草稿。",
+    remember: "关掉当前标签页后通常就结束，重点记“只属于这个标签页”。",
+    relatedIds: [12, 29, 31],
+  },
+  {
+    term: "Cookie",
+    definition: "浏览器保存的一小段文本，可跟随请求发送，也可在前端做基础读写。",
+    remember: "先记“体积小、字符串格式、会带到请求里”这三个特点。",
+    relatedIds: [12, 30, 31],
+  },
+  {
+    term: "查询参数",
+    definition: "URL 中 ? 后面的键值对，适合表达筛选、分页、搜索词等可分享页面状态。",
+    remember: "把页面条件放进链接里，刷新和分享都会更自然。",
+    relatedIds: [17, 26, 31],
+  },
+  {
+    term: "比较函数",
+    definition: "数组排序时传给 sort / toSorted 的函数，用返回值决定前后顺序。",
+    remember: "返回负数表示 a 在前，正数表示 b 在前，0 表示保持相对位置。",
+    relatedIds: [9, 28, 32],
+  },
 ];
 
 window.knowledgeProjectGuides = [
@@ -563,6 +672,7 @@ window.knowledgeProjectGuides = [
     title: "学习打卡卡片",
     summary: "把表单输入、Date、DOM 更新、基础校验串成一个最小可用的小页面。",
     deliverables: ["输入学习主题和天数后生成卡片", "显示今天日期和累计学习天数", "空输入时给出校验提示"],
+    milestones: ["先完成表单结构和结果卡片容器。", "再把输入值读出来并实时更新卡片文案。", "最后补空值校验和日期格式化，让页面可直接演示。"],
     relatedIds: [6, 16, 27],
     questionPath: "questions.html?difficulty=basic&type=practice",
   },
@@ -571,6 +681,7 @@ window.knowledgeProjectGuides = [
     title: "标签去重与筛选面板",
     summary: "把数组方法、Set、事件监听和 localStorage 串起来，适合做课程/文章标签管理。",
     deliverables: ["输入标签后自动去重", "支持筛选、删除和本地保存", "刷新后恢复上次状态"],
+    milestones: ["先把标签输入、列表渲染和删除按钮跑通。", "再用 Set 做去重，并补关键词筛选。", "最后接入本地存储，刷新后恢复上次状态。"],
     relatedIds: [9, 12, 28],
     questionPath: "questions.html?difficulty=intermediate&type=practice",
   },
@@ -579,14 +690,34 @@ window.knowledgeProjectGuides = [
     title: "账号安全小助手",
     summary: "把正则表达式、表单校验和错误提示合起来，做一个实时密码/用户名检查页面。",
     deliverables: ["用户名和密码实时校验", "区分通过、警告、失败三种提示", "提交前统一阻止不合法输入"],
+    milestones: ["先列出用户名、密码、确认密码三类规则。", "再做输入时即时反馈和统一错误提示。", "最后补提交校验和成功状态重置逻辑。"],
     relatedIds: [16, 18, 25],
     questionPath: "questions.html?difficulty=intermediate&type=fill",
+  },
+  {
+    level: "intermediate",
+    title: "筛选链接生成器",
+    summary: "把 URL、URLSearchParams、数组排序和 sessionStorage 串起来，做一个可刷新恢复状态的筛选页。",
+    deliverables: ["筛选条件实时写入 URL 查询参数", "支持排序切换并同步渲染结果", "刷新页面后恢复当前标签页状态"],
+    milestones: ["先定义课程数据和筛选表单，确保筛选结果能正确渲染。", "再把 keyword、level、sort 三个条件同步到 URLSearchParams。", "最后用 sessionStorage 保存临时 UI 状态，例如最后展开的筛选面板。"],
+    relatedIds: [9, 29, 31, 32],
+    questionPath: "questions.html?difficulty=intermediate&type=practice",
+  },
+  {
+    level: "intermediate",
+    title: "主题偏好欢迎页",
+    summary: "把 Cookie、DOM、表单和错误提示串起来，完成一个会记住称呼与主题偏好的欢迎页。",
+    deliverables: ["输入昵称后生成个性化欢迎语", "可保存浅色/深色主题偏好", "下次打开时读取 Cookie 并恢复界面"],
+    milestones: ["先完成主题切换和欢迎语渲染。", "再封装 Cookie 的基础读写辅助函数。", "最后补非法输入兜底和“恢复默认设置”按钮。"],
+    relatedIds: [16, 18, 30],
+    questionPath: "questions.html?difficulty=intermediate&type=practice",
   },
   {
     level: "hard",
     title: "异步倒计时公告栏",
     summary: "结合 fetch、BOM 定时器、事件循环与性能优化，模拟一个会自动轮播更新的公告面板。",
     deliverables: ["请求远程数据并显示加载状态", "使用定时器定期刷新公告", "切换标签页或销毁时及时清理定时器"],
+    milestones: ["先完成加载中、成功、失败三种状态。", "再做自动刷新、倒计时与手动刷新协同。", "最后在标签页切换或组件销毁时清理定时器并检查性能。"],
     relatedIds: [17, 21, 24, 26],
     questionPath: "questions.html?difficulty=hard&type=practice",
   },
